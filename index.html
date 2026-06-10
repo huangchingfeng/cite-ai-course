@@ -1,0 +1,4671 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>城邦媒體 AI 提示詞產生器｜AI 精準下指令心法</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --brand-teal: #0D9488; --brand-teal-dark: #0F766E; --brand-teal-light: #CCFBF1;
+            --brand-navy: #1E293B; --brand-warm: #F59E0B; --bg-light: #F0FDFA;
+            --card-shadow: 0 4px 12px rgba(13,148,136,0.08), 0 2px 4px rgba(0,0,0,0.04);
+            --card-radius: 12px; --gradient-teal: linear-gradient(135deg,#0D9488 0%,#14B8A6 100%);
+            --gradient-dark: linear-gradient(135deg,#0F172A 0%,#1E293B 50%,#1E3A5F 100%);
+        }
+        body { background-color: var(--bg-light); font-family:'Inter','Noto Sans TC',sans-serif; color:var(--brand-navy); }
+        .navbar { background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.08); }
+        .navbar-brand { color:#1a1a1a !important; font-weight:700; font-size:1.05rem; }
+        .main-container { margin-top:24px; margin-bottom:60px; }
+        .card { border-radius:var(--card-radius); box-shadow:var(--card-shadow); border:1px solid rgba(13,148,136,0.1); background:#fff; }
+        .card-header { border-bottom:2px solid var(--brand-teal-light); background:#fff !important; }
+        .form-control-lg { min-height:150px; font-family:'Noto Sans TC',monospace; font-size:0.95rem; border-color:rgba(13,148,136,0.2); line-height:1.6; }
+        .form-control-lg:focus,.form-select:focus { border-color:var(--brand-teal); box-shadow:0 0 0 3px rgba(13,148,136,0.15); }
+        .output-container { background:linear-gradient(135deg,#F0FDFA 0%,#F0FDF4 100%); border:2px dashed rgba(13,148,136,0.3);
+            padding:24px; border-radius:10px; position:relative; white-space:pre-wrap; word-wrap:break-word;
+            font-family:'Noto Sans TC',monospace; min-height:200px; font-size:0.95rem; line-height:1.7; }
+        .copy-btn { position:absolute; top:12px; right:12px; }
+        .template-count { font-size:0.78rem; color:var(--brand-navy); opacity:0.5; margin-left:4px; }
+        .filter-btn { border-radius:20px; padding:6px 16px; font-size:0.9rem; border:1.5px solid rgba(13,148,136,0.3);
+            color:var(--brand-teal-dark); background:#fff; transition:all 0.2s; }
+        .filter-btn:hover { background:var(--brand-teal-light); border-color:var(--brand-teal); }
+        .filter-btn.active { font-weight:700; background:var(--gradient-teal) !important; color:#fff !important;
+            border-color:var(--brand-teal) !important; box-shadow:0 2px 8px rgba(13,148,136,0.3); }
+        .hero-section { background:var(--gradient-dark); color:#fff; padding:48px 20px 40px; border-radius:var(--card-radius);
+            text-align:center; margin-bottom:24px; position:relative; overflow:hidden; }
+        .hero-section::before { content:''; position:absolute; top:-60%; right:-30%; width:80%; height:160%;
+            background:radial-gradient(ellipse,rgba(13,148,136,0.15) 0%,transparent 60%); }
+        .hero-section * { position:relative; z-index:1; }
+        .hero-section h1 { font-size:2rem; font-weight:900; }
+        .hero-section h1 span { color:#5EEAD4; }
+        .hero-section .hero-sub { opacity:0.78; font-size:0.95rem; margin:8px 0 16px; }
+        .hero-section .hero-motto { color:#5EEAD4; font-size:1rem; font-weight:600; letter-spacing:2px; margin:8px 0; }
+        .stat-badge { display:inline-block; background:rgba(13,148,136,0.2); padding:5px 16px; border-radius:20px;
+            font-size:0.85rem; margin:4px; border:1px solid rgba(13,148,136,0.3); }
+        .hero-wave { position:absolute; bottom:0; left:0; width:100%; z-index:0; }
+        .info-card { background:var(--brand-teal-light); border-left:4px solid var(--brand-teal); padding:16px; border-radius:8px; margin-bottom:16px; }
+        .info-card-blue { background:#EFF6FF; border-left:4px solid #3B82F6; padding:12px 16px; border-radius:8px; margin-bottom:12px; font-size:0.9rem; }
+        .rce-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin-top:10px; }
+        .rce-box { background:#fff; border-radius:8px; padding:12px 14px; border:1px solid rgba(13,148,136,0.15); }
+        .rce-box .rce-l { font-weight:800; font-size:1.1rem; }
+        .btn-primary { background:var(--gradient-teal); border:none; color:#fff; font-weight:700; box-shadow:0 2px 8px rgba(13,148,136,0.3); }
+        .btn-primary:hover { background:linear-gradient(135deg,#0F766E 0%,#0D9488 100%); color:#fff; }
+        .tool-links { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+        .tool-link { background:rgba(13,148,136,0.06); padding:5px 14px; border-radius:16px; font-size:0.82rem;
+            color:var(--brand-teal-dark); text-decoration:none; border:1px solid rgba(13,148,136,0.15); transition:all 0.2s; }
+        .tool-link:hover { background:var(--brand-teal-light); border-color:var(--brand-teal); }
+        .slides-card { background:#fff; border-radius:var(--card-radius); box-shadow:var(--card-shadow); border:1px solid rgba(13,148,136,0.1); overflow:hidden; margin-bottom:16px; }
+        .slides-card .slides-header { background:var(--gradient-dark); padding:16px 20px; color:#fff; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+        .slides-card .slides-header h5 { margin:0; color:#5EEAD4; font-weight:700; }
+        .slides-card .slides-header a { color:rgba(255,255,255,0.7); font-size:0.85rem; text-decoration:none; }
+        .slides-card .slides-body { position:relative; padding-bottom:56.25%; height:0; overflow:hidden; }
+        .slides-card .slides-body iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:none; }
+        .ethics-card { background:var(--gradient-dark); border-radius:var(--card-radius); padding:24px; margin-bottom:16px; color:#fff; box-shadow:0 4px 16px rgba(30,41,59,0.2); }
+        .ethics-card h5 { color:#5EEAD4; font-weight:700; margin-bottom:16px; }
+        .ethics-item { display:flex; align-items:flex-start; gap:12px; padding:10px 14px; background:rgba(255,255,255,0.05); border-radius:8px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.05); }
+        .ethics-item:hover { background:rgba(255,255,255,0.1); }
+        .ethics-icon { font-size:1.3rem; flex-shrink:0; }
+        .ethics-item p { margin:0; font-size:0.9rem; color:rgba(255,255,255,0.8); }
+        .ethics-item strong { color:#5EEAD4; }
+        .instructor-section { background:var(--gradient-dark); color:#fff; border-radius:var(--card-radius); padding:40px 30px; margin-top:40px; position:relative; overflow:hidden; box-shadow:0 4px 20px rgba(30,41,59,0.2); }
+        .instructor-section * { position:relative; }
+        .instructor-section h3 { color:#5EEAD4; font-weight:800; margin-bottom:20px; }
+        .instructor-section h6 { color:#5EEAD4; font-weight:700; }
+        .instructor-section .title { font-size:1.3rem; font-weight:700; margin-bottom:4px; }
+        .instructor-section .subtitle { color:rgba(255,255,255,0.65); font-size:0.95rem; margin-bottom:16px; }
+        .exp-list { list-style:none; padding:0; }
+        .exp-list li { padding:4px 0; font-size:0.9rem; color:rgba(255,255,255,0.8); }
+        .exp-list li::before { content:''; display:inline-block; width:8px; height:8px; background:var(--gradient-teal); border-radius:50%; margin-right:10px; vertical-align:middle; }
+        .contact-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-top:20px; }
+        .contact-item { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); padding:14px 16px; border-radius:10px; text-align:center; transition:all 0.2s; }
+        .contact-item a { color:#5EEAD4; text-decoration:none; font-weight:600; }
+        .contact-item .label { font-size:0.78rem; color:rgba(255,255,255,0.45); margin-bottom:4px; text-transform:uppercase; letter-spacing:1px; }
+        .footer { text-align:center; padding:30px 0; color:var(--brand-navy); opacity:0.5; font-size:0.85rem; }
+        .footer a { color:var(--brand-teal); text-decoration:none; }
+    </style>
+</head>
+<body>
+    <nav class="navbar"><div class="container-fluid">
+        <span class="navbar-brand mb-0 h1"><i class="bi bi-book-half me-2" style="color:var(--brand-teal)"></i>城邦媒體集團｜AI 精準下指令心法</span>
+    </div></nav>
+    <div class="container main-container">
+<div class="hero-section">
+  <h1>📚 城邦媒體 <span>AI 提示詞產生器</span></h1>
+  <div class="hero-motto">「 你是機長，AI 是機組人員 」</div>
+  <div class="hero-sub">出版人的 AI 指令庫 — 角色 × 情境 × 期望，挑一個城邦真實情境，一鍵複製</div>
+  <div class="mt-3"><span class="stat-badge">📋 120 個城邦提示詞</span><span class="stat-badge">🛠️ 6 大 AI 工具</span><span class="stat-badge">🛡️ 機密零輸入</span></div>
+  <div class="mt-2" style="font-size:0.78rem;opacity:0.55;">✍️ Gemini 20個 ｜ 🔍 Perplexity 20個 ｜ 🖼️ Manus 20個 ｜ 📊 Claude 20個 ｜ 📚 NotebookLM 20個 ｜ 🎙️ 會議記錄小幫手 20個</div>
+  <svg class="hero-wave" viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 40C240 10 480 55 720 35C960 15 1200 50 1440 30V60H0V40Z" fill="rgba(13,148,136,0.08)"/><path d="M0 50C300 25 600 55 900 40C1100 30 1300 50 1440 45V60H0V50Z" fill="rgba(245,158,11,0.04)"/></svg>
+</div>
+<div class="row justify-content-center"><div class="col-lg-10">
+  <div class="info-card"><strong>💡 怎麼用：</strong>選工具分類 → 挑一個案例 → 三個欄位已預填城邦範例，照改成你的書／情境 → 複製貼到 AI 工具。
+    <div class="rce-grid"><div class="rce-box"><span class="rce-l" style="color:#0F766E">R 角色</span><br><span style="font-size:0.85rem;opacity:0.8">給 AI 40 年經驗的專業身份</span></div><div class="rce-box"><span class="rce-l" style="color:#D97706">C 情境</span><br><span style="font-size:0.85rem;opacity:0.8">書系、讀者、用途、要附的素材</span></div><div class="rce-box"><span class="rce-l" style="color:#7C3AED">E 期望</span><br><span style="font-size:0.85rem;opacity:0.8">格式、字數、語氣，編號講死</span></div></div></div>
+  <div class="info-card-blue"><strong>🔗 課程 AI 工具：</strong><div class="tool-links"><a href="https://gemini.google.com" target="_blank" class="tool-link">Gemini</a><a href="https://manus.im" target="_blank" class="tool-link">Manus</a><a href="https://www.perplexity.ai" target="_blank" class="tool-link">Perplexity</a><a href="https://claude.ai" target="_blank" class="tool-link">Claude</a><a href="https://notebooklm.google.com" target="_blank" class="tool-link">NotebookLM</a><a href="https://chatgpt.com" target="_blank" class="tool-link">ChatGPT</a><a href="https://v2.chateverywhere.app/zh/meeting-transcription" target="_blank" class="tool-link">會議記錄小幫手</a><a href="https://claude.ai/public/artifacts/1e2a5e60-3db6-4682-99ca-c04ae859f9cb" target="_blank" class="tool-link">黃金提示詞優化師</a></div></div>
+  <div class="ethics-card"><h5><i class="bi bi-shield-check me-2"></i>出版人用 AI 的四條準則</h5><div class="ethics-item"><span class="ethics-icon">🔒</span><p><strong>機密零輸入：</strong>未上市書稿、版稅／合約數字、作者個資一律不丟 AI；競品敏感數字用代號。</p></div><div class="ethics-item"><span class="ethics-icon">✅</span><p><strong>產出必驗證：</strong>AI 會「一本正經地」編造書名、作者、得獎與銷量——事實與數據一定要查證。</p></div><div class="ethics-item"><span class="ethics-icon">🤝</span><p><strong>人機分工：</strong>AI 出第一版草稿，選題判斷、文字品味與最終責任在你。</p></div><div class="ethics-item"><span class="ethics-icon">⚠️</span><p><strong>風險意識：</strong>你是機長，AI 是機組人員——它是放大器，不是替代品。</p></div></div>
+  <div class="slides-card"><div class="slides-header"><h5><i class="bi bi-easel me-2"></i>課程主簡報</h5><a href="https://docs.google.com/presentation/d/1lj88NwJunPrjboBpHEHcD0Qdzlv78e0m7cVjha_pJiw/edit" target="_blank"><i class="bi bi-box-arrow-up-right me-1"></i>開啟完整簡報</a></div><div class="slides-body"><iframe src="https://docs.google.com/presentation/d/1lj88NwJunPrjboBpHEHcD0Qdzlv78e0m7cVjha_pJiw/embed?start=false&loop=false&delayms=5000" allowfullscreen="true"></iframe></div></div>
+  <div class="card"><div class="card-header bg-white p-3"><h5 class="mb-3"><i class="bi bi-funnel me-2"></i>1. 選工具與案例</h5><div id="category-filters" class="mb-3 d-flex flex-wrap gap-2"></div><select id="templateSelector" class="form-select form-select-lg"></select></div><div class="card-body p-4" id="prompt-form-container"></div></div>
+  <div class="card mt-4"><div class="card-header bg-white p-3"><h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>2. 複製生成結果</h5></div><div class="card-body p-4"><div id="output" class="output-container">請在上方選擇案例並填寫內容...</div><button id="copyBtn" class="btn btn-primary copy-btn"><i class="bi bi-clipboard me-1"></i>複製</button></div></div>
+</div></div>
+<script type="text/template-data">
+{
+ "name": "編輯部｜引進書中文書名發想與市場規模評估",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版產業選題企劃顧問與書名命名專家，專精商業與生活風格類書籍的市場定位、書名測試與選題評估，曾操刀超過 800 本翻譯書與華文原創書的命名與包裝，多次將冷門選題打造成博客來年度百大暢銷書，並長期為台灣各大出版集團提供選題會議用的市場規模評估報告，最擅長用讀者輪廓與競品數據回答「這本書在台灣到底賣不賣得動」。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是出版社編輯，下週三要在選題會議上報告一本剛拿到版權報價的國外商業書，主題是「中年轉職與第二曲線」。原文書在美國 Amazon 職涯類排名前 50，但台灣市場大小我說不準——過去類似主題的書銷量落差很大，有的賣破 2 萬本、有的不到 800 本。總編輯要求我在會議上提出：這本書在台灣的目標讀者輪廓、市場規模推估，以及 5 個有亮點的中文書名方案。我最怕的就是書名想出來太平淡沒有記憶點，市場評估又講不出依據被主管追問。我會把原書書訊與競品筆記上傳給你。\n\n📎 建議搭配素材：Word 檔：國外原書版權書訊（原文書名、目錄、內容簡介中譯）＋台灣同類型競品書 5 本的書名與賣點筆記"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據我上傳的書訊與競品資料產出一份選題評估報告，要求如下：(1) 目標讀者輪廓：用年齡、職業、購書動機三個維度描述，並對應台灣 35-50 歲上班族人口推估市場規模，標明推估邏輯；(2) 提出 5 個中文書名方案，每個附 8-15 字副標，並各用一句話說明命名策略（恐懼訴求／好奇缺口／數字承諾等）；(3) 從 5 個書名中推薦 1 個首選並說明理由；(4) 列出 3 本台灣已出版競品書與本書的差異化定位；(5) 全文 800 字以內、條列式呈現，語氣專業精煉，繁體中文台灣用語，所有推估數據一律標註「推估」二字。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "麥田出版｜日本翻譯小說書腰與封底文案",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的文學書行銷文案大師，專精書腰金句、封底文案與名人推薦語的撰寫策略，曾為台灣與日本翻譯文學操刀超過 600 本書的包裝文案，多本作品因書腰金句在社群瘋傳而再版加印，並長期擔任出版集團的文案內訓講師，最擅長從厚重書稿中淬鍊出一句讓讀者站在書店裡就掏錢結帳的話。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是文學線編輯，手上一本日本翻譯小說兩週後要送印，封面設計已定稿，但書腰與封底文案還卡著。這本書講一位 65 歲喪偶獨居男性與便利商店夜班店員之間的微妙友誼，文字安靜但後勁很強。上次行銷會議我交的版本被同事說「太像內容簡介、沒有情緒鉤子」，總編輯只給我三天重交。文案要同時用在書腰、封底與博客來商品頁，首刷 4,000 本，目標讀者是 30-55 歲的女性文學讀者。我把試閱章節與作者簡介上傳給你，請你直接從文本裡找出能打中人的句子。\n\n📎 建議搭配素材：PDF 檔：新書內文試閱兩章（約 20 頁）＋作者簡介一頁"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據我上傳的試閱 PDF 產出一套完整包裝文案，要求：(1) 書腰主文案 1 句（15 字以內，要有情緒鉤子，不可劇透結局）＋副文案 2 行（每行 12 字以內）；(2) 封底文案 150-200 字，以場景或提問開頭，禁止用「這是一本…」開頭；(3) 從試閱內文摘出 3 句適合做金句行銷的原文句子並標註出自第幾頁；(4) 提供催淚系與療癒系 2 種調性的完整版本，供行銷會議二選一；(5) 全部使用繁體中文台灣用語，避免成語堆疊與「療癒人心」這類陳腔濫調。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "廣告行政｜家電品牌廣編專題文案提案",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的媒體廣告文案總監，專精雜誌與數位媒體的品牌廣編文案、原生內容企劃與業配專題寫作，曾服務金融、美妝、家電、房產等超過 300 個品牌客戶，操刀的廣編專題多次讓客戶續約加碼，並長期培訓廣告業務團隊，最擅長把客戶生硬的產品資料轉譯成讀者願意讀完、客戶一次就點頭的故事方向。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是媒體集團的廣告業務，下週一要回給一個家電品牌客戶一份廣編文案提案。客戶買了我們網站的原生廣告版位，檔期一個月、預算約 40 萬，要推一台新上市的空氣清淨機，主打有小孩與寵物的家庭。客戶窗口只丟給我一封需求信和官網連結，說「文案方向你們先提」。我不是文案出身，每次寫文案都抓不到客戶要的調性，上一次提案被嫌「太像規格表」，來回改了四次才過稿。這次我想先用 AI 產出方向稿再交給編輯部潤飾，我會把客戶需求信與品牌介紹上傳給你。\n\n📎 建議搭配素材：Word 檔：客戶需求信全文（品牌介紹、檔期、預算、產品重點）＋品牌官網「關於我們」與產品頁文字"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據我上傳的 Word 素材產出一份廣編文案提案，要求：(1) 提出 3 個不同切角的專題方向（如過敏兒家庭實測、寵物家庭日常、醫師觀點），每個方向含專題標題＋100 字內容概要；(2) 為每個方向各寫 1 句社群導流文案（25 字以內）；(3) 用表格比較 3 個方向的目標受眾、訴求重點與適合版位；(4) 推薦 1 個首選方向，並用 3 點說明對客戶的效益；(5) 全文語氣專業但口語、繁體中文台灣用語，總長 600-800 字，所有產品功能描述只能根據我提供的素材，不可自行虛構規格或認證。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "編輯部｜心理勵志新書四週社群貼文規劃",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版社群行銷策略顧問，專精 Facebook 與 Instagram 的書籍宣傳貼文規劃、上市檔期節奏操作與互動率優化，曾為超過 200 本新書操盤上市宣傳，規劃的系列貼文多次帶動預購完售，並長期培訓出版社編輯把書稿內容轉化為社群語言，最擅長把「不知從哪開始」的檔期任務拆成一張可以直接執行的貼文行事曆。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是出版社編輯，下個月有一本心理勵志新書上市，主管要我交一份上市前後四週的粉專貼文規劃表，涵蓋預購期、上市週與長尾期。我平常的工作以編書稿、寫內部報告為主，每次輪到要做社群貼文規劃就很焦慮：不知道一週該發幾篇、每篇要講什麼、節奏怎麼排，常常拖到最後一刻才硬擠出來，自己也不知道從哪裡開始。粉專目前約 3 萬粉絲，過去互動最好的是金句圖文與讀者留言活動。我會上傳新書書訊與過去十篇貼文的成效數據，請你幫我一次排出整個檔期。\n\n📎 建議搭配素材：Word 檔：新書書訊與重點摘文＋Excel 檔：粉專過去 10 篇貼文的主題、格式與互動數據（按讚、留言、分享）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據上傳素材產出一份四週社群貼文規劃，要求：(1) 用表格呈現：週次、建議發文日、貼文主題、貼文類型（金句圖文／摘文／留言活動／影音）、目的（導購／互動／擴散）；(2) 每週 3 篇、共 12 篇，節奏需對應預購期、上市週、長尾期的不同任務並說明邏輯；(3) 其中 3 篇直接寫出完整貼文文案，各 150-200 字，含 hashtag 與導購連結擺放位置；(4) 參考我提供的 Excel 成效數據，用 2-3 點說明貼文類型比例這樣安排的依據；(5) 繁體中文台灣用語，語氣親切不油，每篇貼文第一行必須是吸睛鉤子。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "墨刻出版｜旅遊平台合作提案信拆解與回覆",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版產業商務溝通顧問，專精跨公司合作信件的重點拆解與專業回覆撰寫，曾任多家出版集團版權與異業合作部門主管，處理過上千封品牌聯名、內容授權與活動邀約信件，最擅長從冗長來信中快速抓出對方真正的訴求與藏在客氣話裡的條件，寫出不失禮又守得住自家立場的回信。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是出版社編輯，今天收到一家旅遊平台的合作提案信。信很長、一次夾了三種合作方案（內容授權、聯名電子書、KOL 帶路企劃），還提到希望兩週內回覆意願。我處理這種外部合作信最花時間的就是：要先反覆讀懂對方到底要什麼、哪些是重點哪些是話術，再整理成得體的回覆，一封信常常耗掉我一個下午。這次主管已口頭指示：聯名電子書可以談、內容授權要再內部評估、KOL 企劃婉拒，並希望先約一次線上會議。我會把對方來信全文上傳給你。\n\n📎 建議搭配素材：Word 檔：對方來信全文（約 800 字的合作提案信，含三種合作方案與回覆時程要求）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請完成兩件事：(1) 先用條列拆解這封來信——三個提案各自的內容、對我方的要求、時程與隱含條件，每案 2-3 點摘要；(2) 草擬一封回覆信，結構為：感謝來信→逐項回應（聯名電子書表達意願並提出想先了解的兩個問題、內容授權說明需內部評估保留彈性、KOL 企劃禮貌婉拒但不關死門）→提議下週兩個可選的線上會議時段；(3) 信件 300-350 字，語氣專業友善、不卑不亢，避免翻譯腔；(4) 結尾署名格式留空讓我自行填寫；(5) 全文繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "莫克廣告部｜汽車品牌數位廣告提案文字骨架",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的廣告提案策略總監，專精媒體廣告與整合行銷提案的論述架構、提案故事線與成交話術，曾帶領團隊向金融、汽車、快消品牌完成超過 500 場比稿與提案，勝率在業界出名，最擅長把零散的版位資料與數據，組合成「客戶聽得懂、買得下」的提案邏輯，讓業務不用熬夜也能交出有說服力的簡報。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是廣告部業務，這週五要對一個汽車品牌客戶提案，爭取他們下半年約 200 萬的數位廣告預算，客戶在需求單上寫明 KPI 是新車上市三個月內的試駕預約數。我最頭痛的就是提案：每次做簡報都先卡在「到底要講什麼、順序怎麼排」，常常版位資料貼了一堆，連自己都覺得沒有說服力，排版視覺又吃掉我整個週末。這次我想先請你幫我把提案的文字骨架生出來，我再貼進簡報裡做排版。我會上傳客戶需求單 PDF。\n\n📎 建議搭配素材：PDF 檔：客戶需求單（品牌背景、預算 200 萬、檔期、KPI＝試駕預約數）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據需求單產出一份提案文字骨架，要求：(1) 規劃 10 頁的提案故事線，每頁給我：頁面標題＋該頁要講的 3 個重點＋一句過場句；(2) 順序必須是：客戶痛點→市場洞察→策略主張→媒體組合→成效預估→合作方案；(3) 策略主張頁要給我一句 15 字以內的提案主軸金句；(4) 成效預估頁依需求單上的 KPI 設計「曝光→點擊→名單→試駕」漏斗框架，數字留空白讓我填真實數據；(5) 全文繁體中文台灣用語、語氣自信專業，總長 800 字以內，以條列為主，方便我直接複製貼上簡報。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "數位產品業務部｜電子書平台續約合約溝通信",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的 B2B 商務談判與合約溝通顧問，專精數位內容授權與訂閱服務合約的條款協商與書面溝通策略，曾協助出版、媒體、科技公司處理上千件授權合約往來，最擅長把法務的硬條款翻成客戶聽得進去的說法，在守住公司底線的同時，讓案子順利簽下來、關係不破裂。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是數位產品業務，正在跟一家企業客戶談電子書平台的年度授權續約。卡關點有兩條：客戶要求授權範圍從 500 人擴大到全公司 1,200 人但只願意加價 15%；以及要求新增「提前終止可按比例退費」條款。我們法務的底線是擴大授權至少加價 40%、退費條款不能收。我已和客戶窗口往來三封信，對方語氣開始不耐煩。我每次寫這種信都怕用詞太硬把關係弄僵、太軟又守不住條件；之前用 AI 寫過一版，內容跟實際條款對不上，差點寄錯出大事。這次我會把往來信件與條款節錄都上傳給你。\n\n📎 建議搭配素材：Word 檔：與客戶往來的三封合約討論信件＋PDF 檔：合約爭議條款節錄（機密數字已遮蔽）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據我上傳的素材草擬下一封回覆信，要求：(1) 開頭先肯定對方的續約意願與雙方長期合作關係，緩和前幾封信的緊繃氣氛；(2) 授權人數議題：說明定價邏輯並提出階梯方案（800 人／1,200 人兩個級距，金額留空讓我填），把 40% 底線包裝成有彈性的選項；(3) 退費條款議題：不直接答應，改提「合約期內授權凍結移轉」替代方案；(4) 結尾主動提議一通 30 分鐘電話收斂歧見；(5) 信件 350 字以內、語氣堅定但友善，所有條款描述只能根據我提供的文件，嚴禁加入文件裡沒有的條件，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "布克｜主管信箱三封典型信件批次回覆",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版集團高階主管幕僚與商務書信顧問，專精主管信件的分級處理、批次回覆與授權代答策略，曾擔任多位出版社社長與總經理的特別助理，每天代為處理上百封內外部信件，最擅長用最少的字守住主管的立場與風度，並建立「先分類、再回覆」的高效信件工作法，讓主管把時間留給真正重要的決策。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是出版社主管，每天打開信箱都是五六十封待回信件：作者催版稅報表、通路要促銷折扣、部屬要簽核意見、外部單位邀講座，光回信就吃掉我每天兩三個小時，重要的信反而被淹沒。我知道可以用 AI 幫忙，但一直不敢把信件貼上去——怕作者合約金額、未公開書訊這些機密外洩。後來學到先把人名、公司、金額換成「○○」代號再餵 AI 的做法，今天我挑了三封最典型的信來測試：一封要婉拒外部演講邀約、一封回覆通路的折扣要求（要表達為難但給替代方案）、一封給部屬的企劃案修改意見。\n\n📎 建議搭配素材：Word 檔：三封待回信件全文（人名、公司名、金額已用「○○」代號遮蔽的去識別化版本）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據我上傳的三封去識別化信件分別草擬回覆，要求：(1) 每封先用一行標註「這封信對方真正要的是什麼」；(2) 婉拒演講信：100 字以內，感謝＋婉拒＋祝福，並保留轉介其他講者的彈性；(3) 通路折扣信：150 字以內，不直接答應折扣，改提檔期配合或進貨量替代方案；(4) 部屬企劃信：條列 3 點具體修改方向，語氣是指導而非責備；(5) 三封都用繁體中文台灣用語、保留「○○」代號讓我自行替換，並在最後提醒我寄出前需逐一還原與檢查哪些代號。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "行銷企劃部｜理財新書講座社群貼文三鉤子版本",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的社群內容創意總監，專精 Facebook、Instagram 與 Threads 的貼文鉤子設計、開頭三行留人術與平台語感差異，曾為出版、影視、生活品牌寫出多篇破萬分享的爆款貼文，並長期開設「把官方稿改成人話」的企業內訓課程，最痛恨四平八穩、讀起來像新聞稿的社群貼文。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是行銷企劃，負責集團書籍與活動的社群宣傳。我的問題很明確：每次寫貼文都被主管說「沒有亮點、太像官方公告」，但我看別家粉專的貼文就是有讓人想留言分享的魔力，自己怎麼寫都寫不出來。這次要宣傳一本理財新書的上市講座：兩週後在誠品舉行、免費入場、名額 80 位，目標是一週內報名額滿。我會把新聞稿、目標讀者描述，連同我之前被打槍的兩篇舊貼文一起上傳，請你直接示範「有亮點」跟「沒亮點」到底差在哪。\n\n📎 建議搭配素材：PDF 檔：新書講座新聞稿一頁＋Word 檔：目標讀者描述與過往被主管退件的兩篇舊貼文"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請完成以下產出：(1) 先用 3 點診斷我的兩篇舊貼文為什麼沒亮點（開頭、結構、結尾各一點）；(2) 為這場講座寫 3 個不同鉤子的 Facebook 貼文版本——提問式開頭、數字反差式開頭、故事場景式開頭，每篇 150-200 字，結尾都要有明確的報名行動呼籲；(3) 把最好的一篇改寫成 Instagram 版（100 字以內＋5 個 hashtag）與 Threads 版（口語、80 字以內）；(4) 用對照表總結「官方稿語言 vs 社群語言」的 5 組改寫示範；(5) 全部繁體中文台灣用語，禁用「歡迎踴躍報名」這類官方套語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "漂亮家居 整合新媒體專案營運部｜設計講堂會後新聞稿（防 AI 腦補版）",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的家居生活產業公關新聞稿顧問，專精居家設計、建材與生活風格領域的媒體新聞稿撰寫與事實查核流程，曾為上百場設計展覽與品牌記者會操刀新聞稿，作品被各大媒體直接採用率極高，最重視「稿子裡每一個事實都要有出處」，絕不允許文稿出現原始資料中沒有的內容或誇大形容。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是整合新媒體專案營運部的行銷，下週要發一篇設計講堂活動的會後新聞稿給媒體與官網。我以前用 AI 寫過新聞稿，結果它自己腦補了「現場湧入上千人」「業界首創」這種我們根本沒講過的內容，差點直接發出去，從此我對 AI 的回答品質很不信任，每次都要逐句檢查，反而更花時間。這次活動實際到場約 180 人、有 3 位設計師講者、現場發表了一份居家裝修趨勢調查。我會把活動重點筆記上傳給你——筆記裡有些欄位我還沒拿到資料，我要練習讓 AI 老實說「不知道」。\n\n📎 建議搭配素材：Word 檔：活動重點筆記（主辦單位、日期地點、講者名單、到場人數、趨勢調查數據；其中刻意保留兩處資訊缺漏，練習讓 AI 標註待補而非腦補）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據我上傳的筆記撰寫一篇會後新聞稿，並嚴格遵守：(1) 全文 500-600 字，結構為：標題＋首段五要素（人事時地物）＋活動亮點兩段＋趨勢調查重點一段＋結尾品牌資訊；(2) 只能使用筆記中明確寫出的事實與數據，不可自行新增任何形容詞（如「業界首創」「佳評如潮」）；(3) 筆記缺漏的資訊一律用【待補：說明缺什麼】標註，嚴禁猜測填空；(4) 文末附「事實核對清單」，逐條列出稿中每個數據對應筆記的哪一行；(5) 標題提供媒體版與官網版 2 個版本，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "MOOK｜日本旅遊特輯改版：市場定位分析＋封面賣點文案",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的旅遊出版市場策略顧問，專精旅遊指南書系的市場定位、競品分析與封面賣點文案，曾操刀日本、東南亞等多個熱門目的地旅遊 MOOK 的改版企劃，協助多家華文旅遊媒體在自由行資訊被網路與社群瓜分的時代，重新找回紙本與數位內容的銷售定位，業界公認你最擅長從競品資料中找出別人沒看見的市場空缺帶。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "MOOK 編輯部正在規劃年度日本旅遊特輯的改版，部門主管需要在下週一的選題會議向總編輯與行銷部報告市場定位方向。你手上有一份團隊花兩週整理的競品調查表（Excel），列出市面上 12 本日本旅遊書的書名、定價、出版年、主打賣點與電商即時排名。過去主管請 AI 查競品，常拿到過時甚至捏造的書名，被總編輯當場抓包，因此這次立下原則：AI 只能根據這份 Excel 分析，不可自行補充任何市面資訊。這份報告將直接決定改版方向與封面主打文案，預算規模約 NT$80 萬。\n\n📎 建議搭配素材：Excel 檔：「日本旅遊書競品調查表.xlsx」，內含團隊整理的 12 本市售日本旅遊書資料（書名、出版社、定價、出版年月、主打賣點、電商即時排名），學員上傳給 Gemini 作為唯一分析依據"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求產出：(1) 用表格整理 12 本競品的定位象限（深度文化 vs 速查實用、自由行 vs 親子家庭族群），每本附一句話定位；(2) 指出目前市場的 2 個空缺帶，並明確說明判斷依據是表中哪幾筆資料、哪個欄位；(3) 為改版後的特輯提出 3 個市場定位方案，各附一句 15 字內的封面主標與 20 字內副標；(4) 全程只能引用 Excel 內的資訊，若資料不足以判斷，直接寫「資料不足」，嚴禁腦補或編造書名；(5) 繁體中文台灣用語，全文 600 字內，條列清楚，可直接貼進會議簡報使用。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "麥浩斯漂亮家居｜設計師訪談逐字稿改寫專欄稿（保證不走味版）",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的居家設計媒體資深主編，專精人物專訪寫作、逐字稿改寫與雜誌專欄編輯，曾主持多本家居設計雜誌的封面人物企劃，經手超過千篇設計師專訪稿，最擅長在完整保留受訪者原話語氣的前提下，把口語逐字稿整理成流暢好讀的雜誌文章，業界以「改完稿受訪者讀起來還像自己說的話」聞名，對擅自加油添醋零容忍。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "漂亮家居編輯部剛完成一場 60 分鐘的室內設計師專訪，主題是「老屋翻新的收納規劃」，逐字稿約 9,000 字（Word 檔）。編輯過去請 AI 整理逐字稿，AI 常自行加油添醋、偏離受訪者原意，結果反而花更多時間來回校正比對，比自己重寫還累。這篇文章要刊在下期雜誌的設計師專欄，篇幅約 1,500 字，讀者是 30 到 45 歲、正準備裝修的屋主，下週三截稿，受訪設計師交稿前還會親自過目，原意走味就會被退稿。\n\n📎 建議搭配素材：Word 檔：「設計師專訪逐字稿_老屋收納_9000字.docx」，含訪談者與受訪者對話標記的完整 60 分鐘訪談逐字稿，學員上傳給 Gemini 改寫"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求改寫：(1) 產出 1,500 字（正負 100 字）的專欄文章，結構為導言、3 個小標段落、結語；(2) 受訪者的關鍵觀點必須保留原話，直接引述處加引號，且不可更動引號內任何一個字；(3) 凡是你為了行文流暢而「推測補寫」、逐字稿中原本沒有的句子，一律在句尾加【補】標記，方便編輯逐一確認；(4) 另外挑出 3 句適合做雜誌拉頁金句的受訪者原話，並附逐字稿中的出處段落；(5) 語氣溫暖專業、貼近台灣居家雜誌風格，嚴禁出現逐字稿中沒有的數據、案例或工法名稱。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "La Vie｜質感家電品牌廣編稿三切角提案（有亮點版）",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的生活風格媒體廣告創意總監，專精廣編特輯、品牌業配文案與雜誌調性整合，曾為國際家電、家具與設計品牌操刀數百檔雜誌廣編企劃，最擅長把品牌想講的硬規格語言，翻譯成讀者願意一路讀完的生活風格故事，提案命中率長年居業界之冠，客戶最常給你的評語是「終於有人把我們的產品寫出畫面了」。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "La Vie 廣告業務接到一個質感家電品牌的廣編合作案，客戶提供一份需求單（PDF），內含產品規格、品牌想強調的三大賣點，以及目標族群：30 到 45 歲、重視居家美感的雙薪家庭。業務上一版自己寫的文案被客戶嫌「像產品說明書、完全沒有亮點」，信心大受打擊。這次必須在週五前回給客戶 3 個方向不同的廣編切角供對方挑選，每個切角要附開頭文案；這檔合作金額 NT$45 萬，年度約能不能續，就看這次提案有沒有讓客戶眼睛一亮。\n\n📎 建議搭配素材：PDF 檔：「品牌廣編合作需求單.pdf」，內含客戶提供的產品規格、三大主打賣點、目標族群描述與合作預算檔期，學員上傳給 Gemini 作為文案依據"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求產出：(1) 提出 3 個切角方向，分別走「生活情境故事」「設計美學觀點」「使用者見證」路線，各附 100 字方向說明；(2) 每個切角寫出廣編稿標題（15 字內）與開頭 150 字，開頭第一句必須讓人想往下讀，禁止用「在忙碌的現代生活中」這類陳腔濫調開場；(3) 三大賣點必須自然織進文案敘事，不可條列規格；(4) 每個切角末尾用一句話說明「為什麼這個切角對 30-45 歲雙薪家庭有感」；(5) 繁體中文台灣用語，符合 La Vie 的質感調性，總長 800 字內，可直接貼進回覆客戶的提案信。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "布克文化｜英文樣張快速評估＋選書市場定位報告",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的國際版權選書顧問，專精歐美書市趨勢、英文樣張評估與翻譯書市場定位，曾為多家華文出版社評估上千本英文書稿，協助簽下多本翻譯暢銷書，最擅長從有限的樣張快速判斷一本書在台灣書市的勝算，並嚴守「引用必附出處、推論必說依據」的職業紀律，從不讓委託你的編輯因為摘要失準而做出錯誤的出價決定。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "布克文化編輯收到國外版權代理寄來的一本英文商業勵志書樣張（PDF，前言加前兩章共 28 頁），代理催促兩週內回覆是否報價。編輯英文閱讀速度有限，過去總要整本啃完才敢下評估，常因此錯過熱門書的競價時機；想請 AI 幫忙讀，又擔心摘要不精準、漏掉關鍵內容而做出錯誤判斷，這正是她最焦慮的事。這份評估將寫成選書會議報告，提交給總編輯與版權主管，作為是否出價的決策依據，出價金額預估在 8,000 到 12,000 美元之間。\n\n📎 建議搭配素材：PDF 檔：「英文書樣張_前言+前兩章_28頁.pdf」，國外版權代理提供的英文商業勵志書 sample chapters，學員上傳給 Gemini 摘要與評估"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求產出選書評估報告：(1) 用 300 字摘要這 28 頁的核心論點與寫作風格，每個論點後面標註出自樣張第幾頁，方便編輯抽查原文驗證；(2) 條列本書對台灣讀者的 3 個賣點與 2 個風險（例如案例太美國、概念已有類似中文書）；(3) 給出市場定位建議：目標讀者、適合的書系、可比的台灣已出版書 2-3 本，若你不確定該書是否真實存在，必須標註「待查證」；(4) 凡是樣張沒寫、屬於你推論的內容，一律加【推論】標記；(5) 繁體中文台灣用語，報告 800 字內，結尾必須給出「建議報價／再評估／放棄」三選一的明確結論與理由。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "商周出版｜翻譯書出版評估：競品分析＋目標讀者定位",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的商業書出版策略顧問，專精商管書系規劃、競品分析與目標讀者定位，曾參與上百本翻譯商業書的出版決策，從書名、定價到上市節奏都有完整的方法架構，最擅長把編輯「我覺得這本會賣」的直覺，拆解成有依據、可被會議檢驗的出版判斷，多家出版社的選書會議都指定要看你格式的評估報告。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "商周出版編輯正在評估一本談「中階主管向上管理」的美國翻譯書是否簽下，下週要在選書會議提報。她手上有兩份素材：一份是團隊整理的競品書單（Excel，近三年台灣同主題 15 本書的書名、出版社、定價、出版月份與網路書店排名），另一份是這本書的版權資訊與內容簡介（Word）。她最焦慮的是分析競品和目標讀者時「無法確定自己的方向是否正確」，常常做完分析還是心虛，因此這次需要 AI 把每個判斷的依據攤開來，讓總編輯在會議上可以逐項檢驗與討論。\n\n📎 建議搭配素材：Excel 檔：「向上管理主題競品書單_近三年15本.xlsx」（書名、出版社、定價、出版月份、網路書店排名）＋ Word 檔：「版權書資訊與內容簡介.docx」，兩份一起上傳給 Gemini"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求產出評估分析：(1) 從 Excel 競品書單歸納近三年此主題的出版熱度走勢與定價帶，必須引用具體筆數與欄位數據佐證，不可只給結論；(2) 用表格做目標讀者定位：主要讀者、次要讀者、購買動機、閱讀場景各一欄；(3) 列出「簽」或「不簽」的 3 個關鍵判斷點，每點標註信心等級（高／中／低），並寫明「需要再查什麼資料才能提高信心」；(4) 只能根據提供的兩份素材分析，素材不足以判斷之處明寫「本份資料無法判斷」，嚴禁憑空補市場數據；(5) 繁體中文台灣用語，全文 700 字內，格式可直接貼進選書會議文件。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "媽媽寶寶｜Podcast 單集企劃＋社群宣傳貼文一條龍",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的親子媒體內容總監，專精母嬰議題企劃、Podcast 節目製作與社群內容操作，曾打造多檔登上排行榜的親子類節目，從選題、訪綱、單集標題到上架後的社群導流都有完整的實戰方法，最擅長把專業醫療衛教知識，轉譯成新手爸媽聽得懂、聽得完、還想轉發給隊友聽的內容，被同業稱為「親子聲音內容的操盤手」。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "媽媽寶寶編輯接到任務要製作一集 Podcast，主題是「新生兒睡眠儀式」，已邀到一位兒科醫師受訪，手上有一份訪前重點筆記（Word），內含醫師背景、預計談的 6 個重點與聽眾常見提問。她第一次做 Podcast，光是「工具太多、該從哪個開始」就焦慮了兩個星期，遲遲沒動工；這次決定不再到處比工具，先用 Gemini 一個工具把整集企劃做完。單集預計 35 分鐘，目標聽眾是懷孕後期到寶寶 6 個月的新手媽媽，兩週後錄音。\n\n📎 建議搭配素材：Word 檔：「Podcast訪前重點筆記_新生兒睡眠儀式.docx」，內含受訪兒科醫師背景、預計談的 6 個重點、聽眾常見提問清單，學員上傳給 Gemini 一次生成企劃"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求一次產出三項：(1) 10 個單集標題候選，每個 20 字內，至少 3 個含具體數字或痛點字眼（例如「半夜醒 5 次」），並從中推薦最佳 1 個、附推薦理由；(2) 35 分鐘的單集流程表：開場、3 個訪談段落、聽眾 QA、結尾行動呼籲，每段附時間配置與 2-3 個給醫師的訪談提問；(3) 上架用社群宣傳貼文 2 則：一則 IG 版（150 字內加 5 個 hashtag）、一則 FB 媽媽社團版（250 字內，口吻像媽媽朋友真心分享）；(4) 所有內容只能根據筆記中的 6 個重點延伸，醫療建議嚴禁超出筆記範圍；(5) 繁體中文台灣用語，避免教科書腔與恐嚇式標題。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "墨刻｜旅遊專題贊助洽談 Email 草擬",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的媒體業務開發顧問，專精觀光產業贊助提案、異業合作談判與商務信件撰寫，曾協助多家旅遊媒體拿下觀光主管機關、航空公司與飯店集團的長期贊助案，最擅長在一封信裡同時講清楚「這個合作能幫對方達成什麼」與「下一步具體怎麼走」，經你修改過的開發信回信率是業界平均的三倍，人稱「一封信約到會議」的行家。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "墨刻編輯正在籌備「2026 北海道深度旅遊」專題，需要向一家日系航空公司的台灣分公司洽談贊助合作，對方窗口是行銷部經理，雙方只在旅展上交換過名片、從未正式合作。編輯手上有一份合作方案重點筆記（Word），內含專題規格、版位、預估觸及數據與三種贊助方案級距。但她每次寫贊助洽談信都卡關很久：不是寫得像硬邦邦的官方公文，就是太客氣繞了三段還講不到重點，過去寄出的開發信常常石沉大海，這次專題招商目標 NT$60 萬，不能再失手。\n\n📎 建議搭配素材：Word 檔：「北海道專題贊助方案重點筆記.docx」，內含專題規格、版位說明、預估觸及數據與三種贊助方案級距，學員上傳給 Gemini 作為信件內容依據"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請草擬一封贊助洽談 Email：(1) 主旨 20 字內，要讓行銷經理一眼看出「這封信跟他的 KPI 有關」；(2) 信件結構依序為：一句話喚起旅展見面的記憶、專題介紹（織入 2 個對航空公司最有感的觸及數據）、三種合作方案各一句話摘要、明確的下一步（提議下週二或週四 30 分鐘線上會議，請對方擇一）；(3) 全文 350 字內，語氣專業但有溫度，禁止使用「敬啟者」「素仰」這類老派公文用語；(4) 所有數據只能引用筆記內的數字，不可自行誇大或杜撰；(5) 信末加一句 PS，提到可先寄完整方案 PDF 供內部參考。繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "莫克｜翻譯書書腰文案＋通路宣傳素材整組生成",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的圖書行銷文案大師，專精書腰文案、新書宣傳與通路銷售素材撰寫，職涯經手超過千本書的上市操盤，多本經你寫書腰的翻譯書登上連鎖書店暢銷榜，最擅長從一本書的簡介與目錄中，淘出「讓讀者站在書店平台前願意把書拿起來」的那一句話，業界稱你是「一句書腰救一本書」的傳奇操盤手。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "莫克的行銷企劃負責一本日文翻譯生活風格書的上市宣傳，距離出版只剩三週，手上有編輯給的書籍簡介與完整目錄（Word）。圖書宣傳推廣一直是她最頭痛的工作：上一本書她自己寫的書腰被主管退件，評語是「太平淡、只是內容簡介的縮短版」。下週的通路下單會議就要交出書腰文案與電商頁面宣傳短文，這些素材會直接影響連鎖書店與網路書店的首批下單量，她這次想用精準指令讓 Gemini 先產出有水準的初稿，再自己微調。\n\n📎 建議搭配素材：Word 檔：「翻譯書書籍簡介＋完整目錄.docx」，編輯部提供的定稿版書籍簡介與目錄，學員上傳給 Gemini 作為文案唯一素材來源"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求產出整組上市文案：(1) 書腰主文案 3 組，每組含主標（12 字內）加副標（20 字內），三組分別走「痛點直擊」「情感共鳴」「名人推薦預留位」路線；(2) 電商頁面宣傳短文 200 字，前 30 字必須是能單獨成立的鉤子句；(3) 給通路下單會議用的「一句話賣點」（25 字內），加上三種目標讀者輪廓各一行；(4) 所有文案內容必須源自簡介與目錄，嚴禁虛構書中沒有的方法、章節或案例；(5) 繁體中文台灣用語，禁止「療癒滿點」「質感爆棚」這類浮濫流行語，目標是讓主管看完說「這次有東西」。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "馬可孛羅｜書稿行銷亮點萃取＋去 AI 腔新書文案",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的人文書系行銷總監，專精歷史與旅行文學的新書行銷、書稿亮點萃取與文案品味把關，曾為眾多翻譯文學與非虛構作品規劃上市行銷，最痛恨千篇一律的 AI 腔文案，堅持每本書的文案必須長出那本書自己的聲音，業界公認你審稿時對「空話、套話、形容詞堆疊」零容忍，經你手的文案以「句句有出處、字字有味道」著稱。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "馬可孛羅的行銷企劃拿到一本即將出版的歷史旅行文學書稿節錄（Word，前兩章約 12,000 字），需要在一週內整理出行銷亮點，並完成新書資訊頁文案與媒體書訊。她上一版用 AI 寫的文案被總編輯退件，理由是「AI 腔太重：不僅…更…、深度剖析、必讀之作，全是空話」，而且 AI 根本沒讀進書稿，寫出的亮點套在任何一本書上都通用。閱讀書稿、整理行銷亮點本來就是她最花時間的工作，這次她要用精準指令，讓產出真正長在這本書上。\n\n📎 建議搭配素材：Word 檔：「書稿節錄_前兩章_12000字.docx」，即將出版的歷史旅行文學書稿節錄（出版前定稿），學員上傳給 Gemini 萃取亮點與生成文案"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求產出：(1) 從書稿節錄中萃取 5 個行銷亮點，每個亮點必須附書稿中的具體段落佐證（引述原文 20 字以上），凡是可以套用在任何書上的空泛亮點一律不收；(2) 新書資訊頁文案 300 字，禁止使用「不僅…更…」「深度剖析」「必讀」「震撼人心」「娓娓道來」與任何驚嘆號；(3) 媒體書訊 150 字，新聞稿口吻，只陳述事實與書稿特色；(4) 文案中至少織入 2 句加引號的書稿原文，讓讀者聞得到作者的文字味道；(5) 繁體中文台灣用語，交稿前自我檢查一輪：刪掉所有可以原封不動套到別本書上的句子。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "La Vie｜北歐家具品牌年度合作提案企劃核心文字",
+ "category": "Gemini／RCE 精準指令",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的媒體整合行銷提案顧問，專精生活風格品牌的年度合作企劃、提案故事線設計與預算包裝，曾為設計家具、精品家電與文創品牌規劃上百份媒體年度合作案，提案成交率長年領先同業，最擅長把零散的版位、專題與活動，包裝成一條客戶聽得懂、買得下去的合作故事線，客戶最常說「你的提案讓我們知道錢花在哪裡」。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "La Vie 廣告業務要為一個北歐家具品牌規劃 2027 年度合作提案，客戶在需求單（PDF）中寫明：年度預算約 NT$120 萬、目標是提升品牌在台灣 30 到 45 歲族群的知名度、希望涵蓋雜誌專題與線下活動。對這位業務來說，提案企劃一直是最焦慮的工作：每次都對著空白簡報坐三個小時擠不出架構，不知道從哪裡開始下手。提案下週五就要交，她希望先用 Gemini 把提案的核心文字骨架一次建好，再放進簡報排版，把時間留給跟客戶的溝通。\n\n📎 建議搭配素材：PDF 檔：「品牌年度合作需求單.pdf」，內含客戶填寫的年度預算（NT$120 萬）、行銷目標、目標族群與期望合作形式，學員上傳給 Gemini 作為提案依據"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求產出提案核心文字：(1) 提案主題一句話（20 字內）與 100 字的年度合作故事線，要呼應品牌的北歐生活哲學調性；(2) 用表格規劃三檔合作波段（波段命名、目的、媒體組合、預算占比四欄），三波預算占比合計 100%、總額對齊 NT$120 萬；(3) 每一波段附一段 80 字的提案說明文字，寫給客戶的行銷主管看，重點放在「能幫品牌達成什麼」而非「我們有哪些版位」；(4) 結尾寫 3 點「為什麼選 La Vie」，每一點必須對應需求單中客戶自己寫下的目標，不可泛泛而談；(5) 繁體中文台灣用語，所有文字可直接複製進提案簡報，總長 800 字內。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "編輯部｜新書選題市場評估：用附來源數據說服選題會議",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版產業市場分析顧問，曾任職多家國際出版集團的選題評估委員會，專精台灣與華文書市的銷售數據分析、類型書市場規模估算與競品書比較研究，職涯中經手評估超過 3,000 個出版選題，協助出版社判斷一本書「該不該簽、該怎麼定位」，對博客來、誠品、momo 等通路的排行榜結構與讀者輪廓有第一手研究，最知名的原則是「沒有來源的市場數字，不准進選題會議」。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是 編輯部 的編輯，手上有一個翻譯書選題：一本日本作者寫的「中年轉職與第二人生」主題書，版權代理開價不低，下週三的選題會議我要向總編輯與行銷部報告這本書的市場潛力。我最頭痛的就是評估書籍市場大小——過去我用 AI 查書市資料，常拿到過時甚至瞎掰的銷量數字，被總編輯當場質疑「這數字哪來的」，超級難堪。這次我需要你用附來源的方式幫我查證四件事：台灣近三年「中年轉職／第二人生」類書籍的出版量與代表作、博客來與誠品排行榜上同類書的表現、日本原書在 Amazon Japan 的評價數與排名、以及台灣 45 到 55 歲讀者的閱讀趨勢報導。我附上整理到一半的競品書清單 Excel 給你比對補完。\n\n📎 建議搭配素材：Excel 檔：「競品書清單.xlsx」，內含編輯整理到一半的 8 本同類書書名、出版社、出版日期欄位，銷量與市場表現欄位空白待查證"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請輸出一份「選題會議用市場評估摘要」，繁體中文台灣用語，語氣專業客觀、數據導向，全文約 800 字，並符合以下要求：1. 每一個數據與事實後面都必須附上可點擊的來源連結，沒有來源的推測要明確標註「推估」二字；2. 列出 5 本台灣同類競品書，含書名、出版社、出版年份與市場表現證據；3. 用一段 100 字內的「市場規模判斷」總結這個類型是成長、持平還是衰退，並說明判斷依據；4. 指出 2 個資料之間互相矛盾或無法查證的地方，提醒我會議上不要引用；5. 最後給 3 個基於市場資料的書名方向建議，每個附一句理由，幫我順便解決發想書名的卡關。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "墨刻出版｜旅遊書改版查證：60 個景點現況交叉驗證",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的旅遊出版資深查證編輯，曾參與多套國際旅遊指南系列的繁體中文版編務，專精旅遊景點資訊查證、官方來源比對與出版前事實核實，職涯中經手超過 200 本旅遊書的改版更新，最知名的戰績是建立一套「三來源交叉驗證法」，讓改版書的資訊錯誤率大幅下降，深知一個過期的門票價格或一家已歇業的店，就足以引來讀者退書與通路負評。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是墨刻出版的編輯，正在改版一本日本關西旅遊指南，預計下個月送印，書中收錄大約 60 個景點與店家。疫情後很多店家歇業、搬遷、改營業時間，但我之前用 AI 查資料常拿到過時答案，甚至查到已經倒閉的店還寫「營業中」，差點直接放進書稿，這種「答案不準」的陰影讓我現在每筆資料都不敢信。我先整理了最不確定的 15 個景點清單（Word 檔，含景點名稱、書上現有的地址、票價、營業時間），需要你逐一查證最新現況。這份查證結果我要交給主編核可後更新進書稿，也會附在改版校對紀錄裡留底，所以每一筆都要禁得起主編追問「你怎麼知道的」。\n\n📎 建議搭配素材：Word 檔：「關西景點待查清單.docx」，內含 15 個景點的書稿原始資訊（地址、票價、營業時間），其中 5 筆疑似已歇業或變動"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請輸出一份「景點資訊查證表」，繁體中文台灣用語，語氣簡潔明確，以表格呈現，並符合以下要求：1. 每個景點一列，欄位包含：景點名稱、書稿原資訊、查證後最新資訊、是否需修改（是／否）、來源連結；2. 每一筆「最新資訊」至少要有官方網站或近一年內的可靠來源佐證，並附上連結與資訊日期；3. 凡是只有單一來源、或來源之間互相矛盾的景點，獨立標註「待人工確認」並說明矛盾點，不可以自行挑一個寫上去；4. 已歇業或遷址的景點用醒目方式標出，並附上歇業或遷址的消息來源；5. 表格之後用 150 字以內總結哪幾筆風險最高，建議我親自寫信或打電話向店家確認。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "商周出版行銷業務部｜新書宣傳企劃的市場數據包（零機密外洩）",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的商業出版行銷研究顧問，曾為多家財經商管出版社與書店通路規劃新書上市策略，專精市場趨勢資料蒐集、媒體聲量分析與目標讀者輪廓研究，職涯中操盤超過 500 本商管書的上市宣傳，多次靠精準的趨勢數據說服通路採購給到黃金陳列位，對「哪些數據能打動採購與媒體、哪些只是漂亮話」有極深的判斷力。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是商周出版行銷業務部的同仁，下個月要推一本談「AI 時代工作技能轉型」的商管新書，我要寫一份給通路採購與媒體的宣傳企劃，需要大量市場佐證資料：台灣企業導入 AI 的最新統計、上班族對 AI 取代工作的焦慮相關調查、近一年同主題書籍的市場表現，以及可引用的權威報告，例如人力銀行調查或政府統計。我以前最怕兩件事：一是自己 Google 半天，找到的數字其實已經過時；二是把公司內部銷售數據丟進 AI，怕機密外洩。所以這次我只給你公開的素材——新書的公開書介 PDF——其他全部請你從公開來源查，每個數字都要附出處，因為媒體記者拿到企劃會回頭驗證。\n\n📎 建議搭配素材：PDF 檔：「新書公開書介.pdf」，內含書名、作者簡介、目錄與 300 字內容簡介，全部為對外公開資訊，不含任何內部銷售數據"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請輸出一份「宣傳企劃市場數據包」，繁體中文台灣用語，語氣專業有說服力，約 700 字，符合以下要求：1. 整理 5 到 8 個可直接引用的市場數據，每個數據附：數字本身、調查單位、發布時間、來源連結，發布超過兩年的舊數據一律不用；2. 數據分成三組標題呈現——「市場趨勢」「讀者焦慮與需求」「同類書表現」——方便我直接貼進企劃；3. 每組數據後面加一句 30 字內的「這個數字怎麼用」建議，例如適合放新聞稿標題還是通路提案；4. 明確標註哪些是抽樣調查、哪些是官方統計，避免我在記者面前講錯數據性質；5. 最後列出 2 個網路流傳但查無原始出處、建議我絕對不要引用的常見說法。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "編輯部｜競品社群操作調查：每個論點都有連結佐證",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的媒體與內容產業競品分析專家，曾為多家雜誌集團、數位媒體與生活風格品牌執行競爭對手研究，專精社群經營策略拆解、內容表現指標比對與市場定位分析，職涯中產出超過 1,000 份競品報告，最為人稱道的是堅持「每個論點都有截圖或連結佐證」，讓行銷團隊拿著報告就能直接向主管說明每一條結論的依據。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是 編輯部 的行銷企劃，主管要求我在這週五前交一份競品社群調查，比較我們和三個同類型媒體品牌在 Facebook 與 Instagram 上的經營狀況：發文頻率、內容類型、互動表現、近期的活動操作。我之前用 AI 做過一次，結果它把對方粉絲數講錯，還編了一個根本不存在的線上活動，被主管在會議上當場糾正，超級尷尬，從此他對 AI 產的資料都半信半疑，這就是我最大的挫折——答案不準。這次我會給你一份 Excel，裡面是我們鎖定的三個競品名單與社群帳號連結，請你查證每一項資訊的最新狀況，所有數字都要可以回溯到來源頁面，因為這份報告要放進週五行銷部門會議的簡報。\n\n📎 建議搭配素材：Excel 檔：「競品名單.xlsx」，內含 3 個競品品牌名稱、官網與 FB／IG 帳號連結，以及待查欄位（追蹤數、發文頻率、近期活動）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請輸出一份「競品社群調查報告」，繁體中文台灣用語，語氣中立客觀，約 800 字加一個總表，符合以下要求：1. 用表格比較三個競品：平台、追蹤數（標註查詢日期）、近一個月發文頻率、主要內容類型、代表性貼文連結；2. 每個競品各寫 100 字左右的「近期操作觀察」，每個觀察都要附對應的貼文或活動頁連結，查不到證據的就不要寫；3. 明確區分「查證過的事實」與「我的推論」，推論前面加上標註；4. 列出 2 到 3 個值得我們參考的做法與 1 到 2 個對方做不好的地方，各附證據連結；5. 若有任何資料因帳號隱私或平台限制查不到，直接寫「無法查證」，不准用估計值充數。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "麥田出版｜書腰文案事實查證：得獎紀錄與書評引句逐句核實",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的文學出版查證顧問，曾任多家文學出版社的資深編輯與版權部主管，專精作者背景查證、得獎紀錄核實、書評引用比對與國際書市資訊查證，職涯中把關超過 800 本翻譯文學與華文創作的封面文案與書腰宣傳，最知名的原則是「書腰上的每一個字都要禁得起讀者檢驗」，曾多次在送印前攔下錯誤的獎項名稱，避免出版社公開出糗。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是麥田出版的編輯，下週要為一本翻譯小說定稿封面文案與書腰，行銷部已經在催進度，我的焦慮是文案和進度兩頭燒。文案上會出現幾個必須百分之百正確的資訊：作者的得獎與入圍紀錄、這本書在國外的銷售成績與媒體書評摘句，以及「售出 12 國版權」這類數字。我之前請 AI 幫忙整理，它把「入圍」寫成「得獎」，還引用了一句查不到出處的書評，幸好被我抓到，不然印出去就是公開的錯誤，書都得回收。我會給你一份 Word 檔，裡面是行銷部擬好的文案初稿，請你逐句查證所有可驗證的事實宣稱，這份查證結果我後天的文案定稿會議要向主編報告。\n\n📎 建議搭配素材：Word 檔：「封面文案初稿.docx」，內含書腰主文案、作者簡介 150 字、3 句國外媒體書評引句與「售出 12 國版權」等待查證宣稱"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請輸出一份「文案事實查證報告」，繁體中文台灣用語，語氣嚴謹，符合以下要求：1. 把文案初稿中每一個事實宣稱（得獎、入圍、銷量、版權數、書評引句）逐條列出，每條標註：正確／有誤／無法查證，三選一；2. 「正確」的條目附上至少一個可靠來源連結，例如獎項官方網站、原出版社官網或原文媒體；3. 「有誤」的條目寫出正確版本與來源，並直接提供修正後可用的文案句子；4. 「無法查證」的條目說明查了哪些管道、為什麼查不到，並建議改寫或刪除的替代句；5. 最後用 100 字以內總結整份文案的風險等級（高／中／低），讓我能直接向主編說明哪幾句非改不可。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "漂亮家居 設計家｜裝修行情與法規查證：客服回覆參考資料庫",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的居家裝修產業資訊顧問，長期為室內設計媒體、裝修平台與建材廠商提供市場行情研究與法規查證服務，專精裝修工程價格帶分析、室內裝修相關法規與消費糾紛案例研究，職涯中協助建立多套面向消費者的裝修知識庫，最知名的主張是「行情給區間、法規給官方出處」，深知讀者拿到錯誤行情或過期法規時，第一個怪罪的就是提供資訊的平台。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是漂亮家居設計家網站的客服組長，每天都會收到讀者詢問裝修問題：「老屋翻新一坪大概多少錢？」「室內裝修要不要申請許可？」「系統櫃和木作價差多少？」這類問題我們小組要給大方向的參考答案，但行情每年變、法規也會修，我以前自己上網查資料拼湊，最花時間又常常不確定查到的是不是最新版，也不敢跟讀者保證是對的。我想先從最常被問的 10 題開始，建立一份「客服常見問題參考資料」。我會給你一份 Excel，裡面是我們統計過去三個月最常見的 10 個讀者提問與目前的回覆草稿，請你逐題查證最新行情與法規依據，這份資料會給全組客服同仁使用，也會送主管核備。\n\n📎 建議搭配素材：Excel 檔：「客服常見問題TOP10.xlsx」，內含 10 個讀者提問原文、目前客服回覆草稿，以及待查證欄位（行情區間、法規依據、來源連結）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請輸出一份「客服參考資料查證版」，繁體中文台灣用語，語氣親切但精確，符合以下要求：1. 逐題列出：讀者問題、查證後的參考答案（每題 150 字內）、資訊來源連結與資料日期；2. 涉及價格行情的題目一律給「區間」而非單一數字，標註是哪一年、哪個地區的行情，來源至少兩個且要互相吻合，不吻合就並列說明差異；3. 涉及法規的題目必須引用政府機關或法規資料庫的官方來源，不可以只用部落格或新聞稿；4. 每題附一句「免責提醒」建議句，讓客服回覆時提醒讀者實際情況以廠商報價與主管機關公告為準；5. 最後標出哪幾題的資訊變動最快，建議我們每幾個月要重查一次。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "漂亮家居 整合新媒體專案營運部｜新聞稿數據查證：終結 AI 腦補",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的公關新聞稿查證總監，曾任職國際公關公司與媒體集團，專精新聞稿事實核實、產業數據溯源與品牌聲明風險把關，職涯中審過超過 5,000 篇對外新聞稿，建立的鐵律是「沒有來源的數字不准上稿」，多次在發稿前攔下 AI 生成的虛構統計與根本不存在的調查報告，避免品牌被媒體抓包引用假資料而公開道歉。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是漂亮家居整合新媒體專案營運部的同仁，負責品牌合作專案的新聞稿與文案。最讓我崩潰的就是 AI 自行腦補：上次請 AI 起草一篇居家收納品牌的合作新聞稿，它自己編了一個「根據 2025 年台灣居家生活調查，78% 民眾……」的數據，我差點直接交出去，後來怎麼查都查不到這份調查，從此我對 AI 的回答品質非常不放心。現在又有一篇智慧家居主題的新聞稿要在下週一發布，會發給各家媒體並送品牌客戶窗口審閱。我會給你新聞稿草稿 Word 檔，裡面有 6 處標黃色的數據與趨勢描述是之前 AI 產的，需要你逐一查證：真的有這份資料就附來源，沒有就幫我找可替代的真實數據。\n\n📎 建議搭配素材：Word 檔：「智慧家居合作新聞稿草稿.docx」，內含 6 處標黃色的待查證數據與趨勢宣稱，其中 2 處為先前 AI 生成、出處不明"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請輸出一份「新聞稿查證與替換建議」，繁體中文台灣用語，語氣明快，符合以下要求：1. 逐條處理草稿中標黃色的 6 處數據與宣稱，每條判定：查證屬實／查無此資料／部分正確需修正；2. 「查證屬實」的條目附上原始來源連結、發布單位與年份；3. 「查無此資料」的條目，提供 1 到 2 個主題相近、可替換的真實數據，附來源連結，並改寫成可直接貼回新聞稿的完整句子；4. 替換數據優先使用台灣的調查或統計，真的沒有才用國際數據並標明地區；5. 最後用 5 行以內給我一份「發稿前查證檢查清單」，讓我以後每篇新聞稿都能照表操課，不再被 AI 腦補害到。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "布克｜主管書市情報週報：20 分鐘掌握附來源的產業動態",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版集團決策幕僚與市場情報顧問，曾為多位出版社社長與總經理編寫高層決策用的市場情報摘要，專精書市趨勢追蹤、通路動態解讀與競爭出版社新書布局分析，職涯中產出超過 2,000 份主管級情報簡報，最受信任的原因是「每一條情報都標來源、分等級」，讓主管能在十分鐘內掌握重點，並立刻判斷哪些值得指派團隊深入追蹤。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是布克文化的主管，每天被開不完的會和回不完的電郵塞滿，但身為主管又必須掌握書市動態：哪些類型正在起來、競爭出版社最近簽了什麼書、通路有什麼新政策、電子書與有聲書的趨勢變化。我以前都靠零碎時間滑社群和新聞，資訊既不完整也沒辦法確認真假；交辦同仁整理，他們也說不知道哪些來源可信。另外我對資料安全很敏感，公司的營運數字與版權談判進度絕不能丟給 AI，所以這個任務只處理公開資訊。請依照我附上的情報需求清單 PDF，幫我做一份本週書市情報摘要，我會在週一主管會議前的 20 分鐘看完，部分內容也會轉述給編輯部參考。\n\n📎 建議搭配素材：PDF 檔：「情報需求清單.pdf」，內含主管圈選的 4 大關注主題（類型趨勢、競社動態、通路政策、數位閱讀）與偏好的資訊來源類型"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請輸出一份「書市情報週報」，繁體中文台灣用語，語氣精煉、主管簡報風格，全文控制在 600 字以內，符合以下要求：1. 分四個段落：「產業趨勢」「競爭動態」「通路與平台」「值得留意的一本書」，每段 2 到 3 條情報；2. 每條情報一行重點加一個來源連結，並標註資訊日期，超過兩週的舊聞不要放；3. 每條情報結尾用括號標註可信度等級：（官方）（媒體報導）（業界傳聞），讓我知道哪些可以直接引用、哪些只能參考；4. 摘要最後給 3 條「建議追蹤事項」，每條一句話，說明為什麼值得我指派同仁深入了解；5. 全程只使用公開來源，不得要求我提供任何公司內部數據。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "行銷企劃部｜社群貼文亮點素材庫：用查證過的數據找梗",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的內容行銷數據策略師，曾為媒體集團、出版品牌與生活風格電商打造社群內容策略，專精從公開調查、統計數據與時事趨勢中挖出「讓貼文有梗又有料」的切角，職涯中規劃過上萬則高互動貼文的素材庫，最知名的主張是「貼文沒亮點不是文筆問題，是素材問題」，擅長把一個冷冰冰的統計數字變成讓讀者停下滑動、想轉發的開頭。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是行銷企劃部的同仁，負責品牌社群帳號的貼文企劃，最焦慮的就是寫社群貼文——每次都覺得內容沒亮點，寫來寫去都是自說自話的宣傳文。主管說好的貼文要有「讓人停下來的點」，例如一個意外的數據、一個正在發燒的話題，但我自己找資料和競品調查就佔掉大半時間，找到的又常常不知道真假，之前還差點引用一個網路謠傳的統計數字。下個月我們要推「閱讀習慣養成」主題的系列貼文，總共 8 則，我會給你一份 Word 檔的貼文企劃表，內含每則的主題與目標受眾，請你幫每一則找出可查證的亮點素材，我彙整後要先給主管過目，再排程發布到品牌的社群帳號。\n\n📎 建議搭配素材：Word 檔：「閱讀習慣系列貼文企劃表.docx」，內含 8 則貼文的主題、目標受眾、檔期，與待補的「亮點素材」空白欄位"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請輸出一份「貼文亮點素材庫」，繁體中文台灣用語，語氣活潑但數據要嚴謹，符合以下要求：1. 對應企劃表的 8 則貼文，每則提供 2 個候選亮點素材，可以是統計數據、調查發現、近期話題或冷知識，每個素材附來源連結與發布時間；2. 每個素材附一句 25 字以內的「貼文開頭鉤子」示範，讓我看到素材怎麼變成吸睛的第一句；3. 所有數據優先找台灣的調查，標明調查單位與樣本說明，網路流傳但查無原始出處的一律不收；4. 標註每個素材的時效性：長期可用或限時話題，限時的要註明建議發布期限；5. 最後推薦 3 個我之後可以定期回查的可靠資料來源（網站名稱加網址），讓我建立自己的素材搜集習慣。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "廣告行政｜廣告提案前的客戶產業調查：用行情情報打開話題",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的媒體廣告業務策略顧問，曾任職多家媒體集團廣告部與廣告代理商，專精客戶產業研究、媒體投放行情分析與提案前情報蒐集，職涯中協助業務團隊拿下超過 2,000 筆廣告與內容合作案，最擅長在拜訪客戶前用一份「懂你產業」的情報摘要打開話題，深信業務的說服力一半來自對客戶市場的掌握程度，而不是只會介紹自家版位。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是廣告行政部門的業務，下週四要去拜訪一個新客戶——一家台灣的寢具品牌，希望說服他們在我們的媒體平台投放廣告與內容合作。我最焦慮的就是提案文案的內容：對方是產業內行人，如果我只講我們平台多好，講不到他們產業的痛點，當場就會被看破手腳。我需要在拜訪前搞懂三件事：台灣寢具與居家用品市場的規模與成長趨勢、這個品牌主要競爭對手近期的廣告與行銷動作、目標消費族群的輪廓與購買習慣。我會給你一份 PDF 提案需求單，內含客戶背景與我們想賣的廣告產品組合；查到的資料我會放進提案簡報的「市場洞察」章節，給客戶的行銷主管看，所以每個數字都要有出處可以回答追問。\n\n📎 建議搭配素材：PDF 檔：「寢具品牌提案需求單.pdf」，內含客戶公司背景簡介、本次想推的廣告產品組合，與提案簡報章節架構（市場洞察章節待補）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請輸出一份「客戶產業情報摘要」，繁體中文台灣用語，語氣專業自信，約 700 字，符合以下要求：1. 分三段：「市場規模與趨勢」「競爭品牌動態」「目標消費者輪廓」，每段 3 到 4 條重點，每條附來源連結與資料年份；2. 競爭品牌動態至少涵蓋 2 個對手近半年的行銷活動或廣告投放實例，附可查看的活動頁或報導連結；3. 把每段資料各轉譯成一句 30 字以內、能在簡報中直接對客戶說出口的「提案洞察句」；4. 區分「有數據佐證」與「業界普遍說法」兩種資訊，後者明確標註，避免我在內行客戶面前說錯話；5. 最後列出 2 個拜訪時可以問客戶的好問題，每個問題說明背後想驗證的市場假設。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "MOOK 競品旅遊書清單逐筆查證",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版產業市場情報顧問，專精旅遊出版品的競品分析、書市數據蒐集與資訊查核，曾任日本大型旅遊出版社台灣分公司市場研究主管，協助超過 50 家出版社建立競品監測制度，最重視每一筆數據都附上可點擊查證的原始出處，絕不容許憑印象或捏造的資訊進入決策報告。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是 MOOK 的編輯部主管，下週一要在季度選題會議上，向總編輯與行銷部報告 2026 下半年旅遊書市場動態。我手上有一份內部整理的競品清單 Excel，列出近半年上市的 12 本日本與東南亞旅遊指南，但裡面的出版日期、定價、改版資訊多是同事憑印象填的，部分欄位還是空白。我過去用一般 AI 查詢，拿到過時甚至捏造的書名與日期，曾在會議上被總編輯當場糾正，非常難堪。這次我要求每一筆資料都有來源連結可以點回去查證，確認無誤才放進報告，請依據我上傳的 Excel 逐筆查核。\n\n📎 建議搭配素材：Excel 檔「2026競品旅遊書清單.xlsx」：12 本競品的書名、出版社欄位，加上同事憑印象填寫、部分留空或有誤的出版日期與定價欄位"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求產出查核報告：1. 逐筆查證 12 本競品的出版社、出版日期、定價與目前在博客來、誠品線上的販售狀態，每一筆附上至少 2 個不同來源的網址；2. 來源之間若有出入，標註「資料衝突」並說明你採信哪一個、理由為何；3. 補充每本書的網路書店分類排名或讀者評分，只引用可查證的頁面，查不到就寫「查無公開資料」，禁止任何推測；4. 最後彙整成表格，欄位為：書名／出版社／出版日期／定價／販售狀態／來源連結；5. 全文繁體中文台灣用語，正文 800 字以內，語氣客觀中立，方便我直接貼進季度選題會議簡報。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "圖書業務部 圖文療癒書市行情交叉驗證",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的圖書通路營運分析顧問，專精書市銷售數據解讀、通路行情研究與排行榜情報的交叉驗證，曾協助多家出版集團建立業務月報的數據佐證流程，熟悉博客來年度報告、誠品閱讀報告與官方出版產業調查的引用方式，堅持簡報中每一個市場數字都標明出處，禁得起主管當場追問。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是圖書業務部的業務，月底要做月會簡報，向主管報告圖文療癒類書籍的市場行情，作為下一季鋪貨與選品建議的依據。我手上只有自家出貨數據的 Excel，缺乏外部市場資料佐證；整理數據本來就是我最焦慮的事，上次我引用 AI 給的市占率數字，被主管當場問「這個數字的出處在哪」，我完全答不出來，非常難堪。這次我要求每一個外部數字都附上報告名稱與連結可查，並且和我的出貨數據放在一起對照，讓整份簡報禁得起任何追問。\n\n📎 建議搭配素材：Excel 檔「2026Q2-自家出貨數據.xlsx」：含書系、通路別、各月出貨量與回頭率欄位"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求蒐集與整理：1. 查找近兩年台灣書市與圖文療癒類書籍的公開數據，每個數字附報告名稱、發布單位、年份與原始連結；2. 同一個指標盡量找兩個以上來源交叉比對，數字有落差時並列呈現，並說明差異可能原因；3. 嚴格區分「公開報告數據」與「推估值」，推估值必須標明推估邏輯，禁止假裝成官方數字；4. 將外部數據與我上傳的出貨 Excel 重點對照，指出我們表現高於或低於市場平均的地方；5. 彙整成可直接貼進簡報的條列重點，繁體中文台灣用語，600 字以內。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "布克文化 英文樣張選書背景查證",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的國際版權選書顧問，專精歐美書市情報蒐集與作者背景盡職調查，曾為多家華文出版集團評估上千本翻譯書版權，熟悉 Amazon、Goodreads、Publishers Weekly 等國際書市資料來源，習慣以多個獨立來源交叉驗證每一項資訊，並在報告中逐條附上可回溯查證的原始連結。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是布克文化的編輯，剛收到美國版權代理寄來的英文樣張 PDF，約 30 頁，主題是中年轉職心理學，代理方要求兩週內回覆是否出價。我閱讀英文樣張速度慢，必須整份讀完才有把握評估，但時間根本不夠；過去請 AI 幫忙摘要，又擔心它腦補內容、甚至編造不存在的書評，反而要花更多時間來回驗證。這次我想先把客觀事實查清楚：作者是誰、原書在美國實際賣得如何、媒體真正怎麼評價，每一條資訊都要能點回原始網頁確認，作為我向總編輯提出選書建議的依據。\n\n📎 建議搭配素材：PDF 檔「Mid-Career Reset_樣張.pdf」約 30 頁：含書名頁、目錄、前兩章英文內文，以及版權代理附的一頁賣點說明"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求完成查證：1. 查證作者的學經歷與過往著作清單，以出版社官網或作者官方網站為準，附來源連結；2. 查出原書在 Amazon 與 Goodreads 的星等、評論數與上市日期，附頁面網址與查詢日期；3. 蒐集至少 3 家媒體或書評網站的評價重點，每一則標明出處與刊登日期，查不到的直接說查無，不可虛構；4. 找出美國市場同主題競品 2 至 3 本，列出書名與銷售表現對照；5. 最後整理成一頁選書評估摘要，分「作者可信度／市場表現／風險提醒」三段，500 字以內，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "商周出版 翻譯商管書競品與讀者輪廓驗證",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的商管出版市場分析師，專精翻譯商管書的選題評估、競品分析與目標讀者輪廓研究，曾參與評估數百本日文與英文商管書的中文版權，協助出版社建立以數據為依據的選書決策流程，所有市場判斷都堅持引用可查證的公開資料來源，而非個人印象或業界傳聞。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是商周出版的編輯，正在評估一本日本商管書是否引進，主題是中小企業二代接班與組織轉型。下週的選書提案會上，我要說服總編輯與行銷部這本書值得出價，但我最焦慮的是：我寫的競品分析與目標讀者設定，都是自己想像出來的，完全無法確定方向是否正確。我已經把選書評估表草稿整理成 Word，裡面有我對目標讀者、台灣同類競品、市場賣點的三段假設。請你用附來源的查證方式，逐一檢驗我的假設是對是錯，讓我帶著證據而不是猜測走進會議室。\n\n📎 建議搭配素材：Word 檔「選書評估表-接班書草稿.docx」：含日文原書基本資料，與編輯自己撰寫、尚未查證的目標讀者、競品、賣點三段假設"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求逐項驗證：1. 查證台灣近三年「接班傳承／二代經營」主題書籍的出版與銷售狀況，列出實際書名與網路書店分類排名，附頁面連結；2. 對照我草稿中列的競品清單，指出哪些確實存在、哪些資訊有誤，錯的請附上正確資料與來源；3. 查找台灣中小企業家數、二代接班相關的官方統計或調查報告，標明發布單位與年份，佐證目標讀者規模；4. 針對我的三段假設，逐段給出「成立／不成立／證據不足」的判定與理由；5. 全文繁體中文台灣用語，以條列為主，總長 700 字以內，方便我貼進提案簡報的備註欄。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "媽媽寶寶 Podcast 副食品迷思事實查核",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的母嬰健康內容事實查核顧問，專精婦產科與兒科衛教資訊的查證與風險把關，曾任多家親子媒體的醫療內容審稿顧問，熟悉衛福部國民健康署、台灣兒科醫學會與國際衛生組織的指引文件，堅持每一條衛教結論都附權威來源與發布年份，新舊指引衝突時一律以最新版本為準。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是媽媽寶寶的編輯，正在籌備一集 podcast 節目，主題是「副食品的六大迷思」，下週就要進錄音室。製作 podcast 是我最焦慮的工作：節目是用聽的，講錯醫療資訊沒辦法像網路文章那樣事後修改，萬一被收聽的醫師或爸媽抓到錯誤，對品牌的傷害很大。我的訪綱草稿裡列了 6 條網路流傳的說法，例如「一歲前不能吃蛋白」這類，我需要每一條都先查證對錯，並附上權威來源，當作訪綱備註與主持人口播時的依據，來賓臨時延伸提問時也能即時對照。\n\n📎 建議搭配素材：Word 檔「EP12-副食品迷思-訪綱草稿.docx」：含 6 條網路流傳說法、節目流程與來賓背景資訊"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求逐條查核：1. 對 6 條說法分別給出「正確／錯誤／證據不足」的明確判定，各附一句話理由；2. 來源僅限官方衛教單位、醫學會指引或醫學期刊，每條附來源名稱、發布年份與連結，禁止引用內容農場或論壇文章；3. 若新舊指引說法不同，採用最新版本並註明舊說法已被更新；4. 每條補一句適合主持人口播的白話結論，30 字以內、語氣親切不嚇人；5. 輸出為訪綱備註格式：迷思原文／判定／口播結論／來源，繁體中文台灣用語，方便直接貼回我的訪綱檔案。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "墨刻 觀光單位贊助洽談會前情報查證",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的媒體贊助開發顧問，專精旅遊媒體與政府觀光單位、航空公司、飯店集團的合作提案情報蒐集，曾協助多家雜誌與出版社拿下長期專刊贊助案，深知拜訪前的背景調查決定成敗，堅持每一項客戶情報都要有公開來源佐證，避免在會議上引用錯誤資訊得罪對方。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是墨刻出版的編輯，下週要拜訪一個縣市政府的觀光行銷單位，洽談國際旅遊專刊的贊助合作。贊助洽談一直是我最焦慮的工作：我必須在會議上展現「我們很了解你們在做什麼」，但過去用一般 AI 查對方資料，拿到過時的活動名稱與錯誤的承辦單位，差點在簡報裡寫錯對方去年的主打活動，非常危險。我已整理一份拜訪前資料表 Word，列出對方單位名稱與我想確認的 8 個問題，請你逐題用可查證的公開資訊幫我補齊，每一項都要附來源。\n\n📎 建議搭配素材：Word 檔「贊助洽談-對象資料表.docx」：含對方單位名稱、窗口職稱，與編輯列出的 8 個待確認問題清單"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求產出拜訪前情報摘要：1. 查證該單位近 12 個月發布的觀光行銷活動與新聞稿，列出活動名稱、日期、合作對象，每項附官方網站或新聞來源連結；2. 整理對方過去與媒體或出版社合作的公開案例，標明刊物名稱與年份；3. 不同來源資訊衝突時，標註「待會議當面確認」，不要擅自取捨；4. 對照我資料表中的 8 個問題，逐題填入查證結果，查不到的明確寫「無公開資料，建議當面詢問」；5. 最後濃縮成一頁會前簡報重點，繁體中文台灣用語，600 字以內，語氣務實專業。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "馬可孛羅 新書行銷亮點國外實績查證",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的圖書行銷策略顧問，專精翻譯書行銷亮點挖掘與國外實績查證，曾為上百本翻譯文學與紀實作品規劃上市行銷，熟悉國際獎項官網與各大媒體書評資料庫的查證方式，堅持新聞稿引用的每一句推薦語、每一項得獎紀錄都必須附原文出處，杜絕「查無此文」的行銷事故。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是馬可孛羅的行銷，正在為一本翻譯歷史紀實新書準備行銷亮點與新聞稿素材。版權方給的賣點清單列了得獎紀錄與好幾句媒體推薦語，但全都沒附出處。我的日常痛點是：閱讀書稿、整理行銷亮點已經很花時間，過去請 AI 幫忙，它寫出「《紐約時報》盛讚」結果根本查無此文，差點寫進新聞稿釀成公關事故；而且它的產出常常 AI 腔太重、不夠精煉。這次請你逐條查證版權方清單的真偽，給我每一條都能放心引用、附原文出處的行銷素材。\n\n📎 建議搭配素材：Word 檔「新書行銷素材底稿.docx」：含書名、作者名，以及版權方提供、未經查證的得獎紀錄與媒體推薦語清單"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求產出：1. 逐條查證賣點清單中的得獎紀錄，以獎項官方網站為準，附得獎年份與官網連結，查無者明確標示「無法證實」；2. 逐句查證媒體推薦語的原文，附刊登媒體、日期與文章連結，找不到原文的一律剔除，不可改寫充數；3. 將可證實的素材整理成三欄表格：中文翻譯／英文原文／來源連結；4. 另外補充 2 至 3 個清單沒提到、但查證屬實的亮點，例如作者重要訪談或具體銷售紀錄；5. 文字用平實精煉的台灣繁體中文，避免浮誇形容詞堆疊，總長 600 字以內。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "墨刻MOOK編輯部 京都景點改版資訊逐筆查證",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的旅遊指南事實查核總監，專精景點營業資訊、票價與交通方式的時效性查證，曾主導多本國際城市旅遊指南的改版校訂，建立「官方來源優先、二手資料佐證」的查核流程，深知旅遊書只要一筆過時資訊就會引來讀者投訴，堅持每筆資料都標註查證日期與出處。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是墨刻出版 MOOK 編輯部的編輯助理，負責京都旅遊指南的改版，手上有上一版的 80 個景點清單 Excel，但營業時間、門票價格、交通資訊都是三年前的。查找資料是我最花時間也最沒把握的工作：之前用一般 AI 幫忙更新，它把已經歇業的店家寫成正常營業，書出版後被讀者投訴，我也被主管檢討。這次改版我只信附來源的查證方式，請以我上傳的 Excel 為底，逐筆確認最新狀態，優先引用景點官方網站，讓我每一筆資料都能自己點回去複核。\n\n📎 建議搭配素材：Excel 檔「京都篇-景點清單-舊版.xlsx」：80 筆景點資料，含景點名稱、三年前的營業時間、門票與交通欄位"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求逐筆更新：1. 每個景點的營業時間、公休日、門票價格，一律以官方網站為第一優先來源，附網址與查證日期；2. 官方網站查不到的，才用 Google 地圖或當地觀光協會頁面佐證，並標註「非官方來源」；3. 發現歇業、搬遷或整修中的景點，獨立列成「異動清單」，附消息來源連結；4. 資訊與舊版不同的欄位用粗體標示，方便我比對改版差異；5. 輸出為表格：景點名稱／最新營業時間／門票／異動狀態／來源連結／查證日期，繁體中文，先處理前 20 筆給我確認格式再繼續。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "墨刻編輯部 封面視覺趨勢與參考圖授權查證",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版視覺總監暨圖像授權顧問，專精書籍封面設計趨勢研究與圖片版權查核，曾操刀上百本暢銷書裝幀並擔任國際設計獎項評審，熟悉各大圖庫授權條款與創用 CC 規範，堅持設計提案中的每一個趨勢案例與參考圖片都必須附上可查證的原始出處與授權依據。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是墨刻編輯部的美編，要為旅遊書系改版提出封面視覺方向，需要近兩年國內外旅遊書與生活風格書的封面設計趨勢、得獎案例作為提案依據；同時我挑了 3 張網路上找到的參考圖，想確認授權狀態能不能放進內部提案簡報。我最大的痛點是 AI 答案不準：上次它列給我的「得獎封面作品」，我去獎項官網查根本查無此作品，差點放進提案被總監抓包。這次每一個趨勢案例、每一張圖的授權，都要能點回原始頁面驗證才算數。\n\n📎 建議搭配素材：PDF 檔「封面提案-參考圖清單.pdf」：含 3 張候選參考圖縮圖、各圖的網路出處網址，以及書系改版的視覺需求說明"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求查證：1. 整理近兩年旅遊與生活風格書籍的封面設計趨勢 3 至 5 項，每項趨勢必須引用設計媒體報導或獎項官網的實際案例，附連結，禁止舉查無出處的作品；2. 逐張查核我清單上 3 張參考圖的來源網站與授權條款，標明是版權圖庫、創用 CC 或來源不明；3. 授權不明或不可商用的圖，直接標「不可使用」，並建議可替代的合法圖庫與搜尋關鍵字；4. 引用的獎項名稱、年份、得獎作品必須與官網一致，附查證日期；5. 彙整成一頁視覺提案大綱，繁體中文台灣用語，500 字以內。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "La Vie 香氛品牌提案開場數據查證",
+ "category": "Perplexity 查資料不被騙",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的生活風格媒體廣告提案策略顧問，專精以可查證的產業數據強化提案說服力，曾協助設計與生活雜誌拿下上百個品牌年度合作案，熟悉市調機構報告、官方統計與社群聲量工具的引用規範，堅持提案中的每個市場數字都附出處，讓業務在客戶面前被追問時也能從容應對。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是 La Vie 的廣告業務，下週要向一個居家香氛品牌提案年度內容合作。提案企劃是我最焦慮的工作，而且我常覺得自己不會下指令：企劃開場需要香氛市場規模、消費者輪廓、近期趨勢等數據撐起說服力，我之前問 AI 拿到一堆數字，卻一個都不敢放進簡報，因為怕客戶的行銷主管當場問「這份資料來源是哪裡」。我已把客戶背景與需要補的 5 個數據缺口整理成需求單 PDF，請你逐項幫我找有來源的數據，讓提案開場有憑有據。\n\n📎 建議搭配素材：PDF 檔「香氛品牌提案需求單.pdf」：含客戶品牌背景、年度合作提案方向，與業務列出的 5 個待補數據缺口清單"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求補齊數據：1. 針對需求單上的 5 個數據缺口逐項查找，每個數字附報告名稱、發布單位、年份與原始連結；2. 台灣在地數據優先，找不到時才用亞太或全球數據，並明確標註地域範圍，不可混用；3. 同一指標至少找兩個獨立來源交叉比對，只有單一來源的要標註「單一來源，引用前請留意」；4. 將結果分成「可直接放簡報引用」與「僅供內部參考」兩類，並說明分類理由；5. 輸出成「提案開場數據頁」條列格式，每點一行數據加一行來源，繁體中文台灣用語，方便我直接轉成簡報頁面。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "漂亮家居《設計家》｜客服月報一鍵生成主管會議簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的居家生活媒體客戶服務管理顧問，專精家居裝修平台的客服數據分析、會員滿意度經營與跨部門服務報告製作，曾協助多家室內設計媒體平台與大型電商建立客服月報制度與服務品質儀表板，輔導過上百位客服主管做出讓決策層一眼看懂的月報簡報，最擅長把瑣碎的客服紀錄整理成有觀點的決策簡報。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是漂亮家居《設計家》網站的客服組長，每月底要在部門主管會議上報告當月客服狀況，但我最怕的就是做 PPT，常常數據都整理好了，卻加班到很晚還排不出像樣的版面。我已經把 2026 年 5 月的客服數據整理成 Excel：全月共 386 件客服案件，其中設計師媒合詢問占 42%、會員帳號問題占 25%、廣告合作轉介占 18%，平均回覆時間 4.2 小時、滿意度 4.5 分。主管最在意「案件量趨勢」與「需要其他部門協助的卡關問題」，這份簡報將在 6 月 5 日主管月會上投影報告 10 分鐘。\n\n📎 建議搭配素材：Excel：「2026年5月客服案件統計表.xlsx」，含案件編號、案件類型、處理時數、滿意度、是否需跨部門協助共 5 個欄位約 386 筆紀錄，另附一張月度彙總工作表（近三個月案件量、平均回覆時間、滿意度）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依據我上傳的 Excel，直接生成一份 8-10 頁的客服月報簡報，要求如下：(1) 第 1 頁封面標題「設計家客服月報｜2026 年 5 月」，第 2 頁放三個關鍵數字大字卡（案件總數、平均回覆時間、滿意度），並標注與上月的增減；(2) 案件類型分布用圓餅圖、近三個月案件量趨勢用長條圖呈現；(3) 用一頁警示色卡片列出 3 件需要跨部門協助的卡關案件，各附一句處理建議；(4) 最後一頁列出下月 3 項服務改善行動；(5) 每頁文字不超過 50 字、用條列不用長段落，語氣專業簡潔，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "莫克廣告部｜旅遊品牌 80 萬廣告預算提案簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的媒體廣告提案策略總監，專精雜誌與數位媒體的廣告版位包裝、整合行銷提案與品牌客戶簡報設計，曾為奧美、電通等代理商與上百個消費品牌操刀年度媒體採購提案，提案成交率長年維持業界頂尖水準，最擅長把零散的版位資訊與報價，變成讓客戶當場點頭的視覺化提案簡報。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是莫克廣告部的業務，下週三要向一家旅遊用品品牌的行銷經理提案，爭取對方下半年約 80 萬元的廣告預算。我平常最花時間的就是做簡報和排版設計，每次提案前都焦慮到睡不好——內容我很熟，但簡報就是做不出說服力。我已經把這次要賣的方案整理成 Word：包含旅遊雜誌內頁廣告 2 期、網站首頁 Banner 一個月、IG 業配貼文 3 則，附上各版位流量數據（網站月流量 120 萬、IG 粉絲 18 萬）與報價。提案會在客戶會議室投影、只有 15 分鐘，而且對方同時在比較另外兩家媒體。\n\n📎 建議搭配素材：Word：「旅遊品牌下半年廣告方案.docx」，含三個廣告產品說明（雜誌內頁廣告 2 期、網站首頁 Banner 一個月、IG 業配貼文 3 則）、各版位流量數據（網站月流量 120 萬、IG 粉絲 18 萬）、刊例報價與過往同類客戶成效案例"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據我上傳的 Word 方案內容，生成一份 10 頁的廣告提案簡報：(1) 開場第 1-2 頁先講客戶的行銷痛點與旅遊市場趨勢，不要一開頭就賣版位；(2) 中段用「一個版位一頁」呈現 3 個廣告產品，每頁含版位說明、觸及數據與適合的溝通情境；(3) 用一頁表格呈現三種組合方案（基本、推薦、旗艦）與對應報價，推薦方案在視覺上要最突出；(4) 倒數第二頁放合作後的預期成效（觸及人次、預估互動數）；(5) 整體風格現代有設計感，每頁標題是一句有說服力的話而不是名詞，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "麥田出版｜翻譯文學新書選題會議提案簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的圖書出版選題策劃顧問，專精文學與人文書系的新書提案、市場定位分析與選題會議簡報，曾任多家大型出版集團總編輯顧問，操刀超過 500 本書的出版提案，其中 30 餘本登上誠品與博客來年度暢銷榜，最擅長用一份 10 分鐘的簡報，讓決策會議快速看懂一本書的賣點與市場機會。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是麥田出版的編輯，下週二要在集團選題會議上提報一本翻譯文學新書，台下是總編輯、行銷主管與業務主管共 8 人，每本書只有 10 分鐘提報時間。我平常花最多時間在找資料、做競品調查和做簡報，每次都來不及把蒐集好的內容排成像樣的 PPT，還要同時操心進度與人力安排。我已經把這本書的資料整理成 Word：包含書籍簡介、作者背景（作品在日本累積銷售 35 萬冊）、三本台灣同類競品的銷量與定價、目標讀者輪廓、預估首刷 3,000 本與定價 420 元。這場會議的結論將直接決定是否簽下版權。\n\n📎 建議搭配素材：Word：「翻譯文學新書資料卡.docx」，含書籍簡介、作者背景（作品於日本銷售 35 萬冊）、三本台灣同類競品的書名／定價／預估銷量、目標讀者輪廓、預估首刷 3,000 本與定價 420 元"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據我上傳的 Word 新書資料，生成一份 8 頁的新書提案簡報：(1) 封面用一句 15 字以內的書籍定位標語當主標；(2) 第 2-3 頁呈現「為什麼是這本書、為什麼是現在」，引用資料中的日本銷量數據佐證；(3) 用一頁比較表呈現三本台灣競品的書名、定價、銷量，並標出本書的差異化亮點；(4) 一頁目標讀者輪廓與對應的行銷切角；(5) 最後一頁放首刷量、定價與損益兩平估算，讓業務主管能直接判斷。語氣專業有感染力，每頁重點不超過 4 條，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "編輯部｜「中年轉職理財」新書市場評估決策簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版市場分析顧問，專精書籍品類的市場規模評估、競品銷售數據解讀與選題決策支援，曾為城邦、遠流、時報等出版集團建立選題評估模型，分析過上萬筆書市銷售資料，最擅長把一份雜亂的 Excel 銷售數據，轉成讓編務會議一眼判斷「這個題目值不值得做」的決策簡報。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是 編輯部 的編輯，正在評估要不要開發一本「中年轉職理財」主題的新書，但我最焦慮的就是評估書籍市場大小——數據都攤在 Excel 裡，卻說不出一個有亮點的結論，每次報告都被說內容平平。我已經整理好一份 Excel：抓出近兩年 12 本同類書的出版社、出版日期、定價、博客來排名走勢與預估銷量（最好的一本約 18,000 冊、中位數約 4,500 冊），還補了三個相關 Podcast 節目的訂閱數佐證市場熱度。這份市場評估簡報要在週五編務會議上給總編輯與行銷部看，作為是否簽約作者的依據，我只有 8 分鐘報告時間。\n\n📎 建議搭配素材：Excel：「中年轉職理財書市競品數據.xlsx」，含近兩年 12 本同類書的出版社、出版日期、定價、博客來排名走勢、預估銷量（最佳約 18,000 冊、中位數約 4,500 冊），另一工作表為 3 個相關 Podcast 節目訂閱數"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據我上傳的 Excel 競品數據，生成一份 7 頁的市場評估簡報：(1) 第 1 頁直接給結論——用一句話加一個關鍵數字回答「這個市場值不值得進」；(2) 用長條圖呈現 12 本競品的預估銷量分布，標出最佳值與中位數；(3) 一頁分析市場缺口：現有書缺了什麼角度、本書的差異化機會在哪，引用 Podcast 訂閱數佐證需求；(4) 一頁列出 3 個候選書名方向，各附一句訴求文案；(5) 最後一頁給建議首刷量與兩個風險提醒。每頁文字精簡有觀點、避免流水帳式數據羅列，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "圖書業務部｜Q2 四大通路業績檢討簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的圖書通路營運顧問，專精書店通路業績分析、經銷商管理與銷售檢討報告製作，曾輔導金石堂、誠品、博客來等通路的供應商營運團隊，主持過上千場通路業績檢討會議，最擅長把通路銷售 Excel 報表整理成讓主管會議快速抓到問題、做出決策的檢討簡報。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦圖書業務部的業務，每季要做一次通路業績檢討，平常光是處理 Excel 數據和寫內部報告就占掉大半時間，要再把它變成簡報更是頭痛，常常對著空白投影片不知道怎麼下手。我手上已有 2026 年 Q2 的通路銷售 Excel：涵蓋博客來、誠品、金石堂、momo 四大通路，總營收 1,860 萬元、較上季衰退 8%，其中實體書店衰退 15%、電商通路成長 4%，另有退書率與前十大暢銷書明細。這份簡報要在 7 月初的業務季會上向業務主管與總經理報告 15 分鐘，重點是解釋衰退原因並提出下季對策。\n\n📎 建議搭配素材：Excel：「2026Q2通路銷售報表.xlsx」，含博客來／誠品／金石堂／momo 四大通路的月營收、季增減率、退書率欄位，另一工作表為前十大暢銷書明細（書名、通路、銷量、定價）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據我上傳的 Excel 通路報表，生成一份 9 頁的季度業績檢討簡報：(1) 第 1 頁用三個大數字呈現總營收、季增率、退書率；(2) 用長條圖比較四大通路的營收與季增減幅，衰退通路用警示色標記；(3) 一頁分析衰退的三大原因，每個原因都要對應到報表中的數據佐證；(4) 一頁用表格呈現前十大暢銷書榜單，標出哪幾本帶動電商成長；(5) 最後兩頁提出下季三項具體對策，每項附目標數字與執行方向。語氣就事論事、不卸責也不悲觀，每頁不超過 5 個條列點，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "數位產品業務部｜企業電子書 45 萬續約提報簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的數位內容商務拓展顧問，專精數位閱讀產品的企業授權、續約談判與客戶經營簡報，曾協助多家國際出版集團與資料庫商完成上千件 B2B 授權合約，談判桌經驗豐富，最擅長在續約會議前把產品使用數據整理成「讓客戶覺得不續約很可惜」的價值證明簡報。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦數位產品業務部的業務，下個月要和一家科技公司的人資部門談企業電子書服務的續約，合約金額約 45 萬元。合約溝通一直是我最焦慮的環節——對方採購一定會拿使用率來砍價，我需要先用數據站穩立場，而不是到現場才被動挨打。我手上有一份 Excel 使用報表：該公司 800 個員工帳號，過去一年開通率 72%、月活躍率 41%、總閱讀時數 26,000 小時，最熱門書類是商業理財與心理勵志，且 Q4 活躍率比 Q1 成長 18%。這份簡報要在續約會議上向對方人資主管與採購展示，目標是原價續約並加購 200 個帳號。\n\n📎 建議搭配素材：Excel：「企業客戶年度使用報表.xlsx」，含 800 個員工帳號的開通率 72%、四季月活躍率走勢（Q4 較 Q1 成長 18%）、總閱讀時數 26,000 小時、熱門書類排行榜（商業理財、心理勵志居前）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據我上傳的 Excel 使用報表，生成一份 8 頁的續約提報簡報：(1) 開場頁用「貴公司員工今年共閱讀 26,000 小時」這類具體成果當主標，先講價值再談合約；(2) 用折線圖呈現四季活躍率走勢，凸顯成長 18% 的上升趨勢；(3) 一頁呈現熱門書類排行，連結到人資部門的教育訓練 KPI；(4) 一頁換算投資效益：以閱讀時數換算每位員工每月成本，證明這筆預算划算；(5) 最後一頁提出原價續約加購 200 帳號的方案與優惠時限。語氣自信專業、用數據說話不空泛吹捧，每頁只放一個重點訊息，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "編輯部｜「開學閱讀季」25 萬預算活動提案簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的整合行銷活動策劃總監，專精媒體與出版產業的品牌活動企劃、跨部門提案簡報與活動成效規劃，曾操刀國際書展、誠品閱讀節等上百場大型閱讀推廣活動，提案預算累計超過十億元，最擅長把一份文字企劃案轉成讓主管秒懂活動全貌、願意點頭給預算的視覺化簡報。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是 編輯部 的行銷企劃，正在規劃 9 月的「開學閱讀季」線上活動，需要先做一份企劃簡報，向行銷主管與兩個編輯部的主管提案，爭取 25 萬元活動預算。我平常做簡報 PPT 和找競品資料就花掉最多時間，常常內容都有了卻排不出有說服力的版面，之前用 AI 又常拿到不準確的答案，所以這次我把所有事實都先準備好了。企劃已寫成 Word：包含活動目標（會員新增 3,000 人、活動頁瀏覽 10 萬次）、三波操作（KOL 書單合作、限時 66 折、抽獎活動）、時程表與預算分配明細，並附兩家競品出版社去年同類活動的成效數據。提案會議在下週四，我有 12 分鐘。\n\n📎 建議搭配素材：Word：「開學閱讀季活動企劃.docx」，含活動目標（會員新增 3,000 人、活動頁瀏覽 10 萬次）、三波操作說明（KOL 書單合作、限時 66 折、抽獎）、8-9 月時程表、25 萬元預算分配明細、兩家競品出版社去年同類活動成效數據"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據我上傳的 Word 企劃內容生成簡報、不要自行補充未提供的數據，共 10 頁：(1) 封面放活動主視覺概念與一句活動標語；(2) 第 2 頁用一張全貌圖講清楚「目標—策略—預算」三件事；(3) 三波操作各用一頁呈現，每頁含玩法說明、時程與預期成效數字；(4) 用甘特圖樣式呈現 8-9 月執行時程；(5) 預算分配用圓餅圖，並附競品活動成效對照表證明預估合理。每頁標題用主動句傳達重點、文字精簡視覺優先，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "編輯部｜上半年內容企劃成果部門報告簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版編務管理顧問，專精編輯部營運報告、內容產出績效分析與部門簡報製作，曾擔任多家媒體出版集團的編務顧問，輔導超過 50 個編輯團隊建立內部報告制度，最擅長把編輯逐條寫下的文字工作報告，重新組織成主管會議上條理分明、重點突出、十分鐘講完的簡報。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是 編輯部 的編輯，主管要求我在 6 月底的部門會議上報告上半年的內容企劃成果，台下有部門主管和其他組的同事約 12 人。製作報告一直是我最焦慮的事，每次都不知道從哪開始——內容明明都做了，卻整理不出一份像樣的簡報，光開頭就卡很久。我已經把上半年的工作整理成一份 Word 報告：完成 6 個專題企劃、產出 48 篇文章、平均單篇瀏覽 8,500 次，其中兩個專題被外部媒體轉載，文末還寫了下半年想嘗試的三個新企劃方向與需要的資源。報告時間 10 分鐘，主管最在意「成果數字」和「下半年要做什麼」。\n\n📎 建議搭配素材：Word：「2026上半年內容企劃工作報告.docx」，含 6 個專題企劃清單、48 篇文章與瀏覽數明細（平均單篇 8,500 次）、2 個被外部媒體轉載的專題說明、下半年 3 個新企劃方向與所需資源"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據我上傳的 Word 工作報告，生成一份 8 頁的部門成果報告簡報：(1) 封面之後，第 2 頁用三個大數字總覽上半年成果（專題數、文章數、平均瀏覽數）；(2) 用一頁亮點牆呈現兩個被外部媒體轉載的代表專題，各附一句成果描述；(3) 48 篇文章的瀏覽表現用長條圖呈現前五名；(4) 下半年三個新企劃各用一張卡片呈現：企劃名稱、一句話概念、需要的資源；(5) 最後一頁列出需要主管支持的 2 項資源請求。語氣自信不浮誇、每頁一個訊息、條列不超過 4 點，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "客服中心/讀書花園網站部｜可重複套用的網站營運月報簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的電商網站營運分析顧問，專精會員經營數據解讀、網站營運月報設計與跨部門數據溝通，曾協助博客來、誠品線上等閱讀電商建立營運儀表板與月報簡報制度，最擅長把每月重複的數據整理工作標準化成固定版型，讓營運報告既能快速產出、又每頁都有觀點不被嫌呆板。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦客服中心讀書花園網站部的行銷人員，每個月都要做網站營運月報給跨部門會議，這種重複性工作最讓我焦慮——每月格式一樣、數字換一換，花掉整天時間，做出來卻總被說「內容沒亮點」。我手上有 2026 年 5 月的營運 Excel：網站月流量 95 萬、會員新增 2,400 人、訂單 18,600 筆、客單價 720 元、電子報開信率 22%，以及各商品分類的銷售占比和年同期比較。月報要給行銷、客服、商品三個部門的主管看，會議上報告 8 分鐘，我更希望從此每個月都能用同一套流程，換上新數據就快速生出有觀點的簡報。\n\n📎 建議搭配素材：Excel：「讀書花園2026年5月營運數據.xlsx」，含月流量 95 萬、新增會員 2,400 人、訂單 18,600 筆、客單價 720 元、電子報開信率 22% 五大指標，另一工作表為各商品分類銷售占比與去年同期比較"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據我上傳的 Excel 營運數據，生成一份 8 頁、版型每月可重複套用的網站營運月報簡報：(1) 第 2 頁固定為五大關鍵指標卡（流量、新會員、訂單、客單價、開信率），每個指標旁標注比上月與去年同期的增減箭頭；(2) 各商品分類銷售占比用圓餅圖，年增率前三名的分類用一頁亮點卡呈現；(3) 每頁數據都要加一句「所以呢」的觀點短評，不能只放數字；(4) 一頁列出需要跨部門協作的 2 個待辦與對應負責部門；(5) 最後一頁是下月觀察重點。風格簡潔現代、結構固定方便我下個月直接換數據重新生成，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "行銷企劃部｜心理勵志新書上市行銷提案簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版品牌社群行銷顧問，專精新書宣傳企劃、社群內容波段操作與行銷提案簡報，曾為時報、圓神、城邦等出版集團規劃超過 300 本書的上市行銷活動，多次打造銷量破 5 萬冊的社群爆款書，最擅長把行銷構想整理成讓編輯部與業務部一看就願意配合資源的企劃簡報。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦行銷企劃部的企劃，負責一本 8 月上市的心理勵志新書行銷案，下週要向編輯部與業務部提報行銷企劃簡報。我平常最花時間在找資料、做競品調查和寫文案、新聞稿，最焦慮的是寫社群貼文——常被說內容沒亮點，這次提案我特別怕貼文規劃那幾頁被打槍。我已經把企劃整理成 Word：首月目標銷量 5,000 冊、預算 12 萬元、三階段操作（上市前書摘佈局、上市週 KOL 推薦、上市後讀者口碑），以及 Facebook 與 IG 共 12 則貼文的主題排程表，另附兩本同類暢銷書的社群操作案例。提報時間 10 分鐘，目標是讓兩個部門同意配合檔期資源。\n\n📎 建議搭配素材：Word：「8月心理勵志新書行銷企劃.docx」，含首月目標銷量 5,000 冊、預算 12 萬元、三階段操作說明（上市前書摘佈局、上市週 KOL 推薦、上市後讀者口碑）、FB 與 IG 共 12 則貼文主題排程表、兩本同類暢銷書的社群操作案例"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據我上傳的 Word 行銷企劃，生成一份 9 頁的新書行銷提案簡報：(1) 封面放書名與一句主打溝通概念；(2) 一頁市場切角：引用兩本同類暢銷書的操作案例數據，說明為什麼這套打法會有效；(3) 三階段操作各用一頁，每頁含該階段目標、社群貼文主題方向與預期擴散數字；(4) 用時間軸呈現 12 則貼文的發布排程與平台分工；(5) 最後一頁列出需要編輯部與業務部配合的 3 件事與時限。每頁標題要寫成有亮點的句子，不要「第一階段」這種編號式標題，語氣有熱度但數據紮實，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "MOOK｜Q1 書系銷售季度檢討簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版產業數據分析與經營管理顧問，專精旅遊出版品的銷售數據解讀、書系績效診斷與通路結構分析，曾協助日本昭文社與台灣多家旅遊出版集團建立銷售儀表板與季度檢討制度，最擅長把雜亂的 Excel 報表轉化成高層一看就懂的決策簡報。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦媒體集團 MOOK 的部門主管，下週一要在季度經營會議上向總經理報告 2026 年 Q1 各書系銷售狀況。我已上傳「MOOK_Q1各書系銷售報表.xlsx」，裡面有 6 個書系、4 個通路（博客來、誠品、momo、實體經銷）的月銷量、營收與年增率。過去我都要花整整兩天自己拉樞紐分析再貼進 PPT，而且我最怕 AI 自己編數字——報告數據錯一個，整場會議的信任就毀了。簡報時間只有 15 分鐘，台下還有財務部與行銷部主管。\n\n📎 建議搭配素材：Excel 檔「MOOK_Q1各書系銷售報表.xlsx」：6 個書系 × 4 大通路（博客來／誠品／momo／實體經銷）的月銷量、營收與年增率，共 3 個工作表"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請用上傳的 Excel 製作一份 12 頁的季度業績檢討簡報，要求如下：(1) 簡報上每一個數字都必須直接取自 Excel 原始欄位，禁止推估或捏造，無法確認的數據一律標註「待查」；(2) 第 1-2 頁為整體營收總覽與年增率重點，用一句話講出本季最關鍵的發現；(3) 第 3-8 頁依書系逐一呈現，每頁含一張長條圖與一行診斷建議；(4) 第 9-11 頁分析通路結構變化，特別比較電商與實體占比的消長；(5) 最後一頁列出 3 個下季行動建議。語氣專業精煉，每頁文字不超過 50 字，繁體中文。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "La Vie｜北歐家具品牌整合行銷提案簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的媒體廣告提案專家，專精生活風格與設計類雜誌的整合行銷提案、品牌客戶溝通與創意亮點包裝，曾操刀國際家具品牌、精品家電與飯店集團的年度媒體合作案，提案成交率超過七成，最擅長把平凡的版位方案講成讓客戶眼睛一亮的故事。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是 La Vie 的廣告業務，這週五要向一家北歐家具品牌的行銷總監提案下半年的整合行銷合作，預算規模約 150 萬元。我已上傳「北歐家具品牌客戶需求紀錄.docx」，裡面有客戶在上次會議提到的三個重點：想觸及 30-45 歲設計愛好者、希望有實體活動、在意成效數據。我每次做提案簡報都要熬夜到半夜，做出來主管還是說「內容沒亮點、跟別家提的一樣」，這次還有兩家媒體同時競爭提案，我不能再交出一份平庸的簡報。\n\n📎 建議搭配素材：Word 檔「北歐家具品牌客戶需求紀錄.docx」：上次會議客戶提出的三大重點（目標客群 30-45 歲設計愛好者、希望有實體活動、在意成效數據）與過往合作案例摘要"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據上傳的 Word 需求紀錄，製作一份 10 頁的整合行銷提案簡報：(1) 第 1 頁不要放公司介紹，改用一個關於「設計生活者」的洞察數據或金句抓住注意力；(2) 第 2-3 頁逐一呼應客戶的三個需求重點，每點對應一個具體方案（雜誌專題＋線下策展＋社群擴散）；(3) 第 4-7 頁展開執行細節，含時程表與露出版位；(4) 第 8-9 頁用表格呈現預期成效 KPI 與 150 萬預算分配；(5) 最後一頁設計一個讓客戶心動的限時加值方案。語氣自信有溫度，每頁標題都要是有觀點的一句話，禁止「方案說明」這種死標題，繁體中文。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "圖書業務部｜博客來 7 月新書通路提報簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的圖書通路行銷與採購提報專家，專精連鎖書店與電商平台的選品邏輯、新書鋪貨策略與銷售數據簡報，曾任大型出版集團業務最高主管，操盤過上千場對博客來、誠品、momo 的新書提報會，深知採購人員在 5 分鐘內決定進貨量的關鍵是什麼。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦圖書業務部的業務，下週要對博客來採購提報 7 月的 8 本重點新書，爭取首頁曝光與首批進貨量。我已上傳「7月新書提報資料.xlsx」，裡面有每本書的書名、作者、定價、類型，以及同作者或同類型前作的銷售數據。以前我都是把 Excel 直接印出來照著講，採購常常聽到第三本就開始滑手機；我知道該做簡報，但每次打開 PowerPoint 就不知道從何下手，光是整理數據和排版就耗掉一整個下午。這次提報時間只有 20 分鐘。\n\n📎 建議搭配素材：Excel 檔「7月新書提報資料.xlsx」：8 本新書的書名、作者、定價、類型，以及同作者／同類型前作的歷史銷售數據"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請用上傳的 Excel 製作一份 11 頁的通路提報簡報：(1) 第 1 頁為 7 月書單總覽表，明確標出 3 本主打書；(2) 每本主打書各 2 頁——第一頁講賣點與目標讀者，第二頁用前作銷售數據證明潛力，數據一律取自 Excel 不可自行推算；(3) 其餘 5 本書合併成 2 頁的精簡表格呈現；(4) 最後 1 頁提出對博客來的具體合作請求（曝光版位、首批量、行銷配合）；(5) 每頁文字不超過 40 字，關鍵數據放大呈現，讓採購一眼看到「為什麼要進這本書」。語氣專業直接，繁體中文。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "布克文化｜美國商業書選書會提案簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的國際版權與選書評估專家，專精歐美與日韓翻譯書的市場評估、樣張重點解讀與選書會提案，曾任國際書展版權中心顧問，經手超過 3,000 本外版書的引進評估，協助多家出版社建立系統化評估框架，讓編輯在選書會上 10 分鐘內講清楚一本書值不值得引進。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是布克文化的編輯，後天的選書會要向總編輯提案引進一本美國商業書。我平常讀國外樣張受語言限制速度很慢，必須整本讀完才敢評估；這次我先請 AI 整理重點、自己逐段核對過原文，存成「樣張評估筆記.docx」上傳，裡面有三章樣張的核心論點、目標讀者輪廓、Amazon 分類排名與版權報價（預付金 8,000 美元）。選書會上每本書只有 10 分鐘提案時間，總編輯最在意兩件事：「台灣讀者為什麼需要這本書」和「能不能回本」。\n\n📎 建議搭配素材：Word 檔「樣張評估筆記.docx」：美國商業書三章樣張的核心論點（已自行核對過原文）、目標讀者輪廓、Amazon 分類排名、版權報價預付金 8,000 美元"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據上傳的 Word 評估筆記，製作一份 8 頁的選書提案簡報：(1) 第 1 頁用一句話定位這本書，格式為「一本給○○讀者的○○書」；(2) 第 2-3 頁整理樣張的三大核心論點，每個論點都要註明出自筆記的哪一段，嚴禁超出筆記內容自行發揮，避免失真；(3) 第 4-5 頁分析台灣市場的競品書與目標讀者；(4) 第 6-7 頁用表格估算首刷成本與回本門檻，含 8,000 美元預付金的攤提；(5) 最後一頁列出引進的三大理由與一個最大風險。語氣客觀理性，所有市場推論必須標示「推估」字樣並說明依據，繁體中文。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "商周出版｜日本職場書出版評估簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的商業書出版策略顧問，專精翻譯書出版評估、競品分析與目標讀者定位，曾主導多本年度百大暢銷商業書的引進與企劃，並為多家出版社建立「競品×讀者×時機」三維選書評估模型，最擅長把編輯模糊的市場直覺轉化成有依據、敢拍板的出版決策簡報。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是商周出版的編輯，正在評估一本日本的職場溝通翻譯書是否引進，下週三要在出版會議上報告評估結果。我最大的困擾是：分析競品和目標讀者時，永遠無法確定自己的方向對不對，常常做完整份分析還是心虛。我已上傳兩個檔案：「競品書銷售整理.xlsx」整理了 5 本台灣同類書的出版年、定價、博客來排名與評價數；「書籍資料.docx」有本書大綱、作者背景與日本銷量 12 萬冊的紀錄。會議上總編輯和行銷主管都會在場，他們要的不是感覺，是判斷依據。\n\n📎 建議搭配素材：Excel 檔「競品書銷售整理.xlsx」（5 本台灣同類書的出版年、定價、博客來排名、評價數）＋ Word 檔「書籍資料.docx」（本書大綱、作者背景、日本銷量 12 萬冊）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據上傳的 Excel 與 Word，製作一份 9 頁的出版評估簡報：(1) 第 1 頁結論先行——建議引進或不引進，並標明信心程度（高／中／低）；(2) 第 2-4 頁為競品分析，用表格比較 5 本競品的市場表現並指出本書的差異化空間，數據一律取自 Excel；(3) 第 5-6 頁描繪目標讀者輪廓（年齡、職業、購書動機），每項推論都要說明依據來自哪個檔案的哪段資料；(4) 第 7-8 頁列出引進的三個機會與兩個風險；(5) 最後一頁給出建議首刷量與定價區間。語氣冷靜中立、避免行銷腔，繁體中文。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "媽媽寶寶｜育兒 Podcast 節目企劃簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的親子媒體內容企劃與 Podcast 節目製作顧問，專精母嬰知識內容的選題策略、節目企劃與跨平台內容變現，曾協助多個百萬下載的親子 Podcast 從零開台，並為媒體集團規劃聲音內容產品線，最懂如何把雜誌編輯手上的內容資產轉化成一檔能養出忠實聽眾的節目。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是媽媽寶寶的編輯，公司決定第三季要開一檔全新的育兒 Podcast，主管要我下週五先交一份節目企劃簡報給編輯部主管會議討論。我光是研究做 Podcast 要用哪些工具就已經頭昏腦脹，更別說還要生出企劃簡報。我已上傳「Podcast節目構想筆記.docx」，裡面是我零散記下的想法：目標聽眾是 0-3 歲孩子的新手媽媽、每集 20 分鐘、想訪問小兒科醫師和素人媽媽、可以結合雜誌既有專欄內容。會議上我要說服主管投入編制內人力，第一季先做 12 集。\n\n📎 建議搭配素材：Word 檔「Podcast節目構想筆記.docx」：目標聽眾（0-3 歲孩子的新手媽媽）、每集 20 分鐘、來賓構想（小兒科醫師＋素人媽媽）、可結合的雜誌既有專欄清單"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據上傳的 Word 構想筆記，製作一份 10 頁的 Podcast 節目企劃簡報：(1) 第 1 頁為節目一句話定位，並提供 3 個候選節目名；(2) 第 2-3 頁定義目標聽眾輪廓與收聽情境（餵奶時、通勤時）；(3) 第 4-6 頁規劃第一季 12 集主題清單，分成醫師專業、素人經驗、雜誌專欄延伸三大類，用表格呈現；(4) 第 7-8 頁列出每集製作流程與所需人力時數，讓主管看到投入成本；(5) 最後 2 頁說明節目與雜誌內容的綜效，以及第一季成功指標（下載數、完聽率）。語氣務實有熱情，每頁重點不超過 4 行，繁體中文。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "墨刻｜沖繩特輯航空公司贊助提案簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的旅遊媒體異業合作與贊助提案專家，專精觀光單位、航空公司與旅宿品牌的贊助洽談策略、合作企劃包裝與權益分級設計，曾為多家旅遊媒體談成觀光局年度標案與國際航空聯名專題，深知贊助商要買的從來不是曝光版面，而是一個看得見投資報酬的效益故事。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是墨刻出版的編輯，正在籌備一本沖繩旅遊特輯，需要向一家日系航空公司洽談贊助合作，目標贊助金額 80 萬元，下下週要到對方台北辦公室簡報。贊助洽談一直是我最焦慮的事——我擅長做內容，但不知道怎麼把內容變成對方願意掏錢的提案。我已上傳「沖繩特輯企劃與過往合作數據.docx」，裡面有特輯的內容架構、預計發行量 3 萬本，以及過往兩次與航空業合作的露出成效（社群觸及、導購點擊）。對方窗口是行銷部課長，據說非常看重數據。\n\n📎 建議搭配素材：Word 檔「沖繩特輯企劃與過往合作數據.docx」：特輯內容架構、預計發行量 3 萬本、過往兩次與航空業合作的社群觸及與導購點擊成效數據"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據上傳的 Word 製作一份 10 頁的贊助提案簡報：(1) 第 1 頁從對方視角切入，講「台灣旅客的沖繩熱潮為什麼是貴公司的機會」，不要從我們的自我介紹起手；(2) 第 2-3 頁呈現特輯內容架構與發行通路；(3) 第 4-5 頁用過往合作數據證明效益，數據一律取自 Word 檔，不可加油添醋；(4) 第 6-8 頁設計三級贊助方案（30 萬／50 萬／80 萬），用表格對比各級權益差異，引導對方選擇 80 萬方案；(5) 最後一頁列出合作時程與下一步行動。語氣誠懇專業，全程站在贊助商的投資報酬角度說話，繁體中文。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "莫克｜重點翻譯小說宣傳推廣簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的圖書行銷與宣傳簡報專家，專精翻譯書上市宣傳企劃、媒體資源整合與通路行銷提報，曾操刀數十本年度暢銷翻譯書的宣傳戰役，並為出版集團內部講授「一份簡報走遍媒體與通路」的提報方法，最擅長把一本書的靈魂轉化成一頁頁有感染力的簡報畫面。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是莫克的行銷公關，下個月有一本重點翻譯小說上市，我要做一份宣傳推廣簡報，同時給三個對象使用：內部行銷會議、通路採購、合作媒體。我最大的痛是 PPT 做完很難改——每次主管說「第三頁換個講法」「順序調一下」，我就要重新對齊框線搞半天，常常為了改版面加班到深夜。我已上傳「新書資料卡.docx」，裡面有書名、作者介紹、內容簡介、三位名人推薦語、上市日期，以及首波活動構想（誠品講座＋IG 抽獎）。\n\n📎 建議搭配素材：Word 檔「新書資料卡.docx」：書名、作者介紹、內容簡介、3 位名人推薦語、上市日期、首波活動構想（誠品講座＋IG 抽獎）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據上傳的 Word 資料卡，用 Manus 製作一份 9 頁的新書宣傳簡報，之後我會直接用對話請你調整頁面順序與說法，不再自己拉框線：(1) 第 1 頁以書封意象開場，放一句最有力的名人推薦語；(2) 第 2-3 頁介紹本書與作者，突顯這本翻譯小說的國際成績；(3) 第 4-5 頁規劃上市前後 4 週的宣傳波段，用時間軸呈現；(4) 第 6-7 頁分列媒體合作與通路活動方案（誠品講座、IG 抽獎執行細節）；(5) 最後 2 頁列出預期成效與需要通路、媒體各方配合的事項。語氣有文學溫度但不矯情，每頁標題用書中意象呼應，繁體中文。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "馬可孛羅｜歷史旅行文學新書行銷節奏簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版行銷節奏規劃專家，專精新書上市前後 90 天的行銷波段設計、書稿亮點萃取與跨平台宣傳排程，曾為旅行文學與歷史人文書系打造多個長銷案例，並建立「亮點×受眾×時機」的行銷節奏方法論，最擅長從厚重的書稿裡淘出真正能打動讀者的金句與賣點。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是馬可孛羅的行銷公關，手上有一本 400 頁的歷史旅行文學新書，6 週後上市，這週五的行銷會議上我必須提出完整的行銷節奏簡報。我平常最花時間的就是閱讀書稿、整理行銷亮點、安排新書行銷節奏，而且之前用 AI 寫出來的文案總被主編退件，說「AI 腔太重、不夠精煉」。我已上傳「書稿重點摘要與編輯推薦語.docx」，裡面有各章摘要、作者經歷和編輯整理的 8 個亮點句。會議上總編輯要看到的是：什麼時候、在哪個平台、推什麼亮點。\n\n📎 建議搭配素材：Word 檔「書稿重點摘要與編輯推薦語.docx」：400 頁書稿的各章摘要、作者經歷、編輯整理的 8 個亮點句"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據上傳的 Word，製作一份 10 頁的新書行銷節奏簡報：(1) 第 1 頁用一句不超過 20 字的精煉定位句開場，禁止「在這個快節奏的時代」這類 AI 套話；(2) 第 2-3 頁從 8 個亮點句中選出最強的 3 個，分別說明各自打動哪一群讀者；(3) 第 4-7 頁規劃上市前 3 週到上市後 3 週共 6 週的行銷節奏，用時間軸呈現每週主打亮點、平台（FB／IG／Podcast／書店活動）與素材形式；(4) 第 8-9 頁列出需要作者配合的 3 件事與媒體名單方向；(5) 最後一頁定義成效檢核點。全篇文字要精煉如書腰文案，每頁不超過 5 行，繁體中文。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "La Vie｜高端廚電品牌年度合作提案簡報",
+ "category": "Manus 簡報製作",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的媒體年度合作提案企劃顧問，專精生活風格媒體的品牌年度合作架構設計、提案企劃撰寫與簡報說服策略，曾協助多家設計與生活媒體拿下汽車、建築、精品品牌的年度合作案，並培訓上百位媒體業務從「賣版位」升級成「賣企劃」，深知一份好提案抵過十次拜訪。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是 La Vie 的廣告業務，主管指派我向一家高端廚電品牌提年度合作企劃，目標簽下全年 200 萬元的合作案，兩週後要正式簡報。提案企劃一直是我最焦慮的環節——我會跑客戶、會聊需求，但要把想法變成一份有架構的企劃簡報，我連第一頁該放什麼都不知道，也不太會對 AI 下指令。我已上傳兩個檔案：「LaVie媒體數據.xlsx」有雜誌發行量、網站流量與社群受眾輪廓；「客戶訪談筆記.docx」記錄了對方在意品牌質感、想接觸換屋族、年底有新品上市這三個關鍵訊息。\n\n📎 建議搭配素材：Excel 檔「LaVie媒體數據.xlsx」（雜誌發行量、網站流量、社群受眾輪廓）＋ Word 檔「客戶訪談筆記.docx」（客戶在意品牌質感、想接觸換屋族、年底有新品上市）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請根據上傳的 Excel 與 Word，製作一份 12 頁的年度合作提案簡報：(1) 第 1 頁以客戶的品牌願景開場，連結「生活風格媒體×高端廚電」的合作想像；(2) 第 2-3 頁用媒體數據證明我們的讀者正是換屋族，數據取自 Excel 並標示出處欄位；(3) 第 4-8 頁規劃全年四季的合作主題，每季一頁，年底配合新品上市安排最大行銷波段；(4) 第 9-10 頁用表格呈現 200 萬預算的項目分配與各項預期成效；(5) 最後 2 頁放合作時程與三個立即可啟動的小型試水方案，降低客戶簽年約的心理門檻。語氣質感沉穩呼應品牌調性，每頁標題要像雜誌標題一樣有畫面感，繁體中文。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "圖書業務部｜八通路銷售 Excel 月報深度分析",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版通路銷售數據分析顧問，曾任全台最大圖書經銷商營運長與連鎖書店總部採購主管，專精書店通路、電商平台與超商通路的銷售報表分析、退書率控管、補書與促銷決策，職涯協助超過 200 家出版社建立銷售月報制度，最知名的經歷是替一家大型出版集團透過數據分析調整鋪貨策略，一年內把整體退書率從 35% 降到 22%，被業界稱為「最會看報表的通路顧問」。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦媒體集團圖書業務部的業務，每個月都要彙整各通路回傳的銷售報表，整理成一份內部報告給部門主管，並在月會上提供給各出版事業部參考。手上這份 Excel 有近 6 個月、8 個通路、約 120 個品項的銷量與退書數據，我以前都靠手動篩選和土法煉鋼的樞紐分析，常常加班到晚上九點還怕算錯數字。下週一就要交月報，主管這次特別交代要回答三件事：哪些書該趕快補貨、哪些通路的退書率異常偏高、跟上個月相比整體表現是進步還是退步。我對 Excel 函數不熟，更不知道怎麼把一堆數字變成主管看得懂的結論。\n\n📎 建議搭配素材：Excel 檔〈通路銷售月報_2026上半年.xlsx〉：6 個月 × 8 個通路（連鎖書店、獨立書店、電商、超商等）× 約 120 個品項，欄位含書名、ISBN、定價、折扣、銷量、退書量、退書率"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求分析我上傳的 Excel 並產出報告草稿：1. 先給數據總覽：總銷量、總退書率、與上月相比的增減百分比，用 3 行內講完。2. 用表格列出銷量前 10 名品項與退書率最高前 5 名品項，欄位含書名、通路、數字。3. 指出 2-3 個數據異常的通路（例如退書率明顯高於整體平均），各附一句可能原因推測。4. 給 3 項具體行動建議（補貨、調整鋪貨或促銷），每項附一句數據理由。5. 全文整理成 800 字內的內部月報草稿，繁體中文、商務報告語氣、先結論後細節，讓我微調後可直接貼進報告寄出。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "數位產品業務部｜電子書平台授權合約條款拆解",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版授權與數位內容合約顧問，具法律與出版雙背景，曾任跨國出版集團法務長與數位授權部門最高主管，專精電子書授權、有聲書版權、平台分潤條款、獨家與終止條件的審閱與談判，職涯經手超過 3,000 份內容授權合約，最知名的經歷是代表台灣多家出版集團與國際電商平台談判電子書分潤架構，替出版方爭取到業界少見的有利拆帳條件，擅長把艱澀法律條文翻成業務聽得懂的白話。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦數位產品業務部的業務，平常最花時間的就是跟平台方來回確認合約與寫內部報告，而合約溝通正是我最焦慮的事——合約動輒 20 幾頁、滿滿法律用語，我每次都怕漏看吃虧的條款，跟對方溝通時也說不清楚我方疑慮，問了 AI 又常覺得答案不準、不敢直接採用。現在手上有一份電子書平台寄來的合作合約草稿（PDF，約 20 頁），下週三前要回覆對方修改意見，回覆前還要先向部門主管報告風險點。我需要先弄懂哪些條款對我方（授權方）不利、該怎麼開口跟平台談，而不是整份囫圇吞棗簽下去。\n\n📎 建議搭配素材：PDF 檔〈電子書平台合作合約草稿.pdf〉：約 20 頁模擬合約，含授權範圍、分潤比例、獨家條款、最低保證金、授權期間、終止與違約條件、報表稽核條款"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請站在我方（內容授權方／甲方）立場分析這份合約：1. 用表格列出對我方最不利的 5 個條款：條號、條文重點、風險說明各一欄。2. 每個風險條款附一句「建議修改方向」，例如分潤計算基準、獨家範圍限縮、終止後資料下架期限。3. 把「分潤、授權期間、終止條件」三件事各用 100 字內的白話解釋，讓沒有法律背景的主管聽得懂。4. 幫我擬 3 個要向平台方確認的問題，語氣專業堅定但不挑釁，可直接貼進回覆 Email。5. 最後提醒我哪些條款屬於重大權利義務、仍應送正式法務複核，全文繁體中文、條列清楚。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "客服中心/讀書花園網站部｜會員消費數據 RFM 分級分析",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的電商會員經營與數據分析顧問，曾任大型網路書店與連鎖零售集團會員經營部門最高主管，專精 RFM 會員分級、回購率與客單價分析、沉睡會員喚醒活動與分眾行銷名單規劃，職涯操盤過會員數超過百萬的電商平台，最知名的經歷是替一家網路書店設計分眾喚醒活動，讓超過半年未消費的沉睡會員回購率提升三成，並把每月例行的會員報表從三天工作量壓縮成半天的標準流程。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我在城邦客服中心讀書花園網站部負責行銷，每個月最花時間的就是處理 Excel 會員數據、寫內部報告、應付跨部門要名單，而且這些幾乎都是重複性工作——每月撈一次、篩一次、貼一次，做完覺得內容也沒什麼亮點，這正是我最無力的地方。手上這份 Excel 是近一年 2,000 筆會員消費紀錄，含註冊日、最近購買日、消費次數、累計金額與主要購買類別。下週要交一份會員分級報告給主管，作為下一檔行銷活動的名單與預算依據，我希望這次不只交數字，還能交出讓主管眼睛一亮的洞察，並且把流程固定下來，以後每個月直接套用。\n\n📎 建議搭配素材：Excel 檔〈讀書花園會員消費紀錄_近一年.xlsx〉：2,000 筆模擬會員資料，欄位含會員編號、註冊日期、最近購買日、近一年消費次數、累計消費金額、主要購買書籍類別"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請分析我上傳的會員 Excel 並產出報告：1. 用 RFM 概念（最近購買、頻率、金額）把會員分成 4-6 級，表格列出每級的定義、人數、佔比、平均消費金額。2. 指出最值得優先經營的 2 個分級，各附一句數據理由。3. 針對超過 180 天未購買的沉睡會員，給 3 個喚醒活動點子，每個附一句執行說明與適合的書籍類別。4. 產出 200 字內的報告摘要，商務語氣、先結論，讓我直接貼給主管。5. 最後列出一份 5 步驟的「每月會員分析 SOP」清單，讓我下個月把同樣的指令和流程重複套用，徹底擺脫重複性工作。全文繁體中文。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "漂亮家居 設計家｜客服紀錄 Excel 分析月報",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的客戶服務管理顧問，曾任電信集團與大型電商客服中心最高主管，專精客訴分類分析、客服紀錄數據化、服務流程改善與客服團隊績效管理，職涯輔導過上百個客服團隊建立月報與根因分析制度，最知名的經歷是接手一個每月客訴量破千件的客服中心，靠數據分析找出前三大根因並改造流程，半年內讓客訴量砍半、客戶滿意度從 3.2 分拉到 4.5 分，擅長把第一線紀錄變成管理層看得懂的決策資訊。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是漂亮家居設計家網站的客服組長，每個月都要整理客服紀錄 Excel 交月報給主管，這份檔案約 600 筆，欄位有日期、問題分類、處理時長、是否結案、客戶滿意度。處理 Excel 一直是我最花時間的工作之一，光是篩選和拉樞紐就耗掉一個下午，而且我不太會下指令請 AI 幫忙，常常問完得到不能用的答案。這個月底前要交客服月報，主管想知道三件事：哪一類問題最多、整體處理速度有沒有變慢、需不需要補人力或工具。我希望這份月報不只是貼數字，而是讓主管一眼看出該做什麼決定。\n\n📎 建議搭配素材：Excel 檔〈設計家客服紀錄_本月.xlsx〉：約 600 筆模擬客服紀錄，欄位含日期、問題分類（帳號、刊登、付費方案、檢舉、其他）、處理時長（分鐘）、是否結案、客戶滿意度（1-5 分）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請分析我上傳的客服紀錄 Excel 並產出月報草稿：1. 先列本月總覽：總件數、結案率、平均處理時長、平均滿意度，每項與上月（我會補充數字）並列比較。2. 用表格列出前 5 大問題分類的件數與佔比，並標出處理時長明顯高於整體平均的分類。3. 指出 2-3 個值得注意的異常現象，各附一句可能原因推測。4. 給 3 項改善建議（例如常見問題回覆範本、FAQ 頁面、人力調度），每項附一句理由與預期效果。5. 整理成 600 字內的月報草稿，繁體中文、條列分明、管理層商務語氣，讓我修一修就能直接交出去。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "布克文化｜版權合作案 22 封往來信件濃縮與回覆",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版社經營管理顧問，曾任出版集團總經理特助與集團營運長，專精跨部門溝通、合作案進度管理與高階主管決策資訊整理，職涯協助過數十位出版社高階主管建立郵件處理與資訊濃縮的工作方法，最知名的經歷是替集團高層設計「每日 30 分鐘清空信箱」工作法，把主管每天超過 2 小時的郵件處理時間壓到 40 分鐘，並擅長從冗長的往來信件中快速抓出承諾、風險與待決事項。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是布克文化的主管，每天最痛苦的就是回不完的電郵——一個合作案來回幾十封，等我終於有空坐下來看，已經理不清誰承諾了什麼、哪些問題還掛著。手上這份 Word 是一個版權合作案近一個月、共 22 封往來信件的完整內容；因為我很在意機密外洩問題，上傳前已先把真實人名、公司名與金額做了去識別化處理。明天上午十點要跟對方開線上會議，我只有今晚 20 分鐘可以準備，需要快速掌握全案脈絡、弄清楚雙方各自承諾過什麼、還有哪些事懸而未決，並先備好一封會前回信。\n\n📎 建議搭配素材：Word 檔〈版權合作案往來信件彙整.docx〉：22 封模擬往來 Email 全文（已去識別化），時間橫跨一個月，內容含合作條件討論、報價往返、時程承諾與未回覆的開放問題"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請消化這 22 封信件並產出會前準備包：1. 用時間軸列出整串信件的 5-8 個關鍵節點，每個節點一行（日期＋一句話）。2. 用表格整理三類事項：「對方提出的要求」「我方已承諾事項」「尚未回覆的開放問題」，每項註明出自第幾封信。3. 點出我方目前最大的 2 個風險或前後矛盾之處，各附一句因應建議。4. 擬一封 200 字內的會前回信草稿：先感謝、再簡要回應、最後確認明天會議要討論的三個重點，語氣專業溫和。5. 額外提醒我：日後上傳這類信件前該做的 3 個去識別化檢查動作。全文繁體中文。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "編輯部｜同類書銷售數據分析評估新選題市場",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版選書與書市分析顧問，曾任大型出版集團總編輯與書市研究機構首席顧問，專精同類書銷售數據比對、選題市場規模評估、定價策略與書名市場測試，職涯評估超過 5,000 個出版選題，最知名的經歷是從銷售數據中預判一本冷門題材翻譯書的市場潛力、力排眾議建議簽下版權，最終該書創下年度暢銷紀錄，被同業稱為「用數據選書的總編輯」，擅長把零散的銷售數字轉成選題會聽得懂的市場判斷。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是 編輯部 的編輯，最焦慮的就是評估書籍市場大小和發想書名——每次選題會都要回答「這本書到底能賣多少」，我過去只能憑感覺，講出來自己都心虛；加上平常最花時間的就是找資料和處理 Excel 數據，常常整理半天還是看不出結論。手上這份 Excel 整理了近三年 40 本同類型書籍的資料，含書名、出版社、定價、首刷量、累計銷量、出版年月與是否翻譯書。下週二的選題會上，我要報告一個新選題的市場評估，給總編輯和行銷部決定是否簽下版權，同時還得帶幾個候選書名去討論。\n\n📎 建議搭配素材：Excel 檔〈同類書近三年銷售資料.xlsx〉：40 筆模擬同類型書籍資料，欄位含書名、出版社、定價、首刷量、累計銷量、出版年月、是否翻譯書、主要銷售通路"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請分析這份同類書 Excel 並產出選題會報告：1. 列出 40 本書的銷量分布：平均值、中位數、前 25% 門檻值，用表格呈現並加一句解讀。2. 找出「賣得好的書」的 3 個共同特徵（例如定價帶、出版時機、書名風格、是否翻譯書），各附數據佐證。3. 據此推估新選題的保守／基本／樂觀三種銷量情境，每種附一句推估依據。4. 參考暢銷書的書名模式，發想 5 個新書候選書名，各附 10 字內的命名理由。5. 把以上整理成 600 字內的選題會報告草稿，繁體中文、先結論後依據，讓我能自信地站上選題會報告。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "麥田出版｜長篇小說投稿書稿快速審讀評估",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的文學出版審稿顧問，曾任老牌文學出版社總編輯，並多次擔任重要文學獎決審委員，專精長篇書稿審讀、作品市場定位判斷、改稿方向建議與給作者的審稿回覆撰寫，職涯審閱超過 8,000 部投稿作品，最知名的經歷是從堆積如山的自由投稿中發掘一部無名作者的長篇小說，親自帶著作者改稿兩輪後出版，最終成為改編影視的暢銷作品，業界公認「看稿快、看得準、回信讓作者心服口服」。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是麥田出版的編輯，案頭同時壓著好幾部投稿書稿，每部十幾萬到三十萬字，光是「判斷值不值得細讀」就要花掉好幾天，導致我的進度安排一團亂——這正是我最焦慮的事，後面還排著文案要寫、人力要喬。手上這份 Word 是一部長篇小說投稿的節錄版（約 1.5 萬字，含完整大綱與前三章）加上作者投稿信。這週五的編輯會議我必須提出初步審讀意見，給總編輯決定是否進入簽約評估；無論結果如何，我也要回一封信給作者，不能讓認真投稿的人覺得被敷衍。\n\n📎 建議搭配素材：Word 檔〈長篇小說投稿書稿_節錄.docx〉：模擬長篇小說投稿，課堂示範用節錄版約 1.5 萬字（含完整大綱與前三章），另附作者自介與投稿信一頁"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請審讀這份書稿並產出審稿報告：1. 先給 300 字內的全書內容摘要（依大綱與已有章節，不爆雷主要結局）。2. 用表格從「題材新穎度、文字完成度、敘事結構、目標讀者明確度、市場潛力」五個面向各給 1-5 分並附一句評語。3. 列出作品的 3 個最大亮點與 3 個主要疑慮，各一句話。4. 給出「建議簽約／請作者修改後再議／婉拒」三選一的初步判斷，附 100 字理由，供編輯會議討論。5. 幫我擬一段 150 字的給作者回信草稿，語氣誠懇尊重、具體點出可取之處，不論結果都讓作者感受到被認真對待。全文繁體中文。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "墨刻出版｜外部合作提案長信拆解與初步回覆",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版異業合作與商務溝通顧問，曾任旅遊生活出版集團副總編輯與品牌合作部門最高主管，專精合作提案評估、商務信件往來策略、出版方與品牌、政府單位、旅宿業者的合作條件談判，職涯經手超過 1,000 件異業合作案，最知名的經歷是促成多個城市觀光單位與出版社的年度合作專案，擅長從對方落落長的提案信中快速拆出真正的訴求與隱藏條件，並寫出進可攻退可守的回覆信。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是墨刻出版的編輯，平常最花時間的就是 Email、內部報告和找資料，而我最焦慮的正是回覆外部合作 Email——必須先完整理解對方的要點，再整理成得體的回覆，一封信常常卡掉我半天；之前自己問 AI，又常覺得答案不準、抓錯重點，不敢直接用。手上這封 Word 是某觀光協會寄來的合作提案信，全文約 2,500 字，夾雜出版合作、行銷曝光、經費分攤、時程等好幾個訴求。對方希望下週前得到初步回覆，而我在回信前還要先跟主管口頭報告這個案子值不值得接、有什麼要注意的。\n\n📎 建議搭配素材：Word 檔〈觀光協會合作提案信.docx〉：約 2,500 字模擬合作提案 Email 全文，內含出版合作、行銷曝光、經費分攤、時程等多個交錯的訴求與條件"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請拆解這封提案信並產出回覆準備包：1. 條列對方信中的所有訴求與條件，每項一句話，並標注出自信中第幾段，方便我回頭核對原文。2. 用表格把訴求分成三類：「對我方有利」「需要再談」「有疑慮」，每項附一句判斷理由。3. 用 150 字內幫我整理一段向主管口頭報告的說法：這案子是什麼、機會在哪、風險在哪。4. 擬一封 250 字內的初步回覆信：感謝提案、複述我方理解的重點、提出 2-3 個釐清問題、明確表示尚需內部評估、不做任何承諾。5. 語氣專業友善，繁體中文台灣用語，避免生硬翻譯腔。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "編輯部｜三場會議逐字稿濃縮成主管 5 分鐘進度報告",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的企業內部溝通與報告寫作顧問，曾任媒體集團幕僚長與管理顧問公司資深合夥人，專精會議資訊整理、長文濃縮、內部報告架構設計與主管簡報邏輯，職涯替上百位經理人代筆與審閱過數千份營運與專案報告，最知名的經歷是把集團每月 60 頁的營運簡報改造成 6 頁決策摘要，讓董事會會議時間縮短一半，擅長從雜亂的逐字稿中撈出決議、卡點與該追的人。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是 編輯部 的編輯，平常最花時間的就是會議記錄逐字稿、Email 和內部報告，而「製作報告」正是我最焦慮的事——每次專案開完一輪會，我得把好幾場會議的逐字稿翻出來拼湊成進度報告，常常面對一萬多字不知從何開始，光整理就花掉一整天。手上這份 Word 收錄了同一個內容專案三場會議的逐字稿，合計約 1.2 萬字（文字已先用會議記錄工具轉好）。這週四前我要交一份專案進度報告給部門主管，主管事先聲明只想花 5 分鐘看完，所以重點必須一目了然，不能流水帳。\n\n📎 建議搭配素材：Word 檔〈內容專案三場會議逐字稿.docx〉：同一專案三場會議的模擬逐字稿合計約 1.2 萬字（已由會議記錄工具轉好文字），含發言人代號、討論、決議與未認領事項"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請消化這三場逐字稿並產出進度報告：1. 先給 150 字內的「主管 5 分鐘版」摘要：目前進度、最大卡點、需要主管拍板的事，各一句。2. 用表格整理三場會議的決議事項：內容、負責人、期限，並標注出自哪一場會議。3. 列出跨會議「有人提過但沒人認領」的 3 個懸而未決問題。4. 把以上組成一份 800 字內的進度報告，結構固定為：摘要→進度→待決事項→下一步，商務語氣、條列為主。5. 最後另附 3 種「報告開頭第一句」範例，幫我這種每次不知從哪開始的人快速下筆。全文繁體中文。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "商周出版行銷業務部｜50 頁產業趨勢報告濃縮成行銷洞察",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的圖書行銷與市場情報分析顧問，曾任財經出版集團行銷總監與市場調查公司研究總監，專精產業報告判讀、閱讀市場趨勢分析、把數十頁的長篇研究濃縮成行銷團隊立刻能用的洞察與切角，職涯讀過上萬份產業與消費者調查報告，最知名的經歷是從一份閱讀行為調查中找出獨特切角，替一本財經書打造行銷主軸，帶動整個書系銷售翻倍，被譽為「最會把報告變武器的行銷顧問」。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我在商周出版行銷業務部負責行銷，最焦慮的就是找資料——每次規劃書籍行銷案都要啃產業報告和競品資料，一份動輒四、五十頁，看完天都黑了，還要再開會、整理逐字稿、寫文案；而且我很擔心機密資料外洩，所以只敢拿公開資料餵 AI，內部銷量數字一律不上傳。手上這份 PDF 是一份公開的 2026 台灣閱讀與出版趨勢報告，約 50 頁。下週我要規劃一本商業新書的行銷案，需要從這份報告中萃取能支撐企劃的市場洞察，寫進給主管與編輯部看的行銷企劃書裡，讓提案有數據撐腰而不是憑感覺。\n\n📎 建議搭配素材：PDF 檔〈2026 台灣閱讀與出版趨勢報告_公開版.pdf〉：約 50 頁模擬公開產業報告，含閱讀人口、購書通路、商業書市場、讀者輪廓與消費行為等章節與圖表數據"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請濃縮這份 50 頁 PDF 並產出行銷可用的素材：1. 先給 300 字內的全報告重點摘要。2. 用表格列出與「商業書讀者」最相關的 5 個數據或趨勢：數據內容、出處頁碼、一句行銷意涵。3. 根據趨勢提出 3 個商業新書的行銷切角，每個附一句報告依據。4. 把以上整理成 500 字內、可直接貼進企劃書的「市場洞察」段落，商務語氣、繁體中文。5. 最後針對我的機密疑慮，列出 3 條「上傳資料前的資安自我檢查」提醒（例如內部銷量、未公開合約數字、個資一律不上傳），讓我安心把這套流程變成固定做法。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "布克文化：75 頁英文樣張一天內變選書評估報告",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的國際版權與選書顧問，曾任全球前五大出版集團亞洲區版權總監，專精英文書稿評估、翻譯書市場潛力分析與版權交易談判，經手超過 3,000 本翻譯書的選書評估，以「30 分鐘看穿一本書值不值得買版權」聞名法蘭克福書展圈，長期為台灣多家出版社撰寫選書評估報告，最反對沒讀懂原文就下判斷的評估方式。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦布克文化的編輯，負責評估國外出版社寄來的英文樣張，決定是否推薦購買繁體中文版權。我的英文閱讀速度有限，過去一份 80 頁的樣張要花三、四天才讀得完，必須整本讀完才敢下評估，常常趕不上版權報價的截止日；想借 AI 幫忙又擔心精準度，怕漏掉關鍵內容。我上傳的 PDF 是一本美國商業勵志書的樣張，含前言與前三章共約 75 頁。這份評估報告要在這週五的選書會議上提給總編輯，作為是否出價的依據；出價金額由主管判斷，我只需要提供內容面的專業評估，所以「每個判斷都能回溯到樣張原文」是最重要的要求。\n\n📎 建議搭配素材：PDF：〈sample_chapters_美國商業書英文樣張.pdf〉，約 75 頁，含前言＋前三章，模擬國外出版社寄來的版權評估樣張。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請產出一份選書評估報告，繁體中文台灣用語、語氣客觀中立，所有判斷必須註明出自樣張第幾頁、引用原文關鍵句並附中文翻譯，嚴禁腦補樣張裡沒有的內容：\n1. 全書核心論點與章節架構摘要，500 字以內。\n2. 列出 3 個最有賣點的觀點或故事，各附頁碼與原文引句（附翻譯）。\n3. 分析目標讀者輪廓與台灣書市可能的對標書，明確區分「樣張有依據」與「你的市場推測」。\n4. 列出 2-3 個潛在風險（如內容過時、文化隔閡、案例太美國本位）。\n5. 結論給出「推薦出價／保留觀望／不推薦」三選一，附 100 字理由，並列出我該回頭核對原文的 3 個段落頁碼，方便我抽查你的精準度。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "商周出版：220 頁翻譯書稿＋競品分析的選題評估",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版選題策略顧問，曾任跨國出版集團編輯總監與台灣大型出版社總編輯，專精翻譯書市場評估、競品分析與讀者輪廓研究，主導過上千本翻譯書的出版決策，其中超過 50 本登上年度暢銷榜，以「先想清楚賣給誰、再決定出不出」的選題方法論聞名出版圈，最擅長把模糊的市場直覺變成有依據的決策建議。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦商周出版的編輯，正在評估一本日本經濟趨勢書是否值得出繁體中文版。我最沒把握的就是競品分析和目標讀者判斷——常常分析做完了，還是無法確定方向到底對不對，每次選題會議都心虛。我上傳兩個檔案：PDF 是這本書的英文版全文書稿，約 220 頁；Word 是我自己整理的 5 本台灣同類書清單，含出版日期與大致銷量量級。這份評估會在月底的選題會議上報告，給總編輯和行銷部主管看，用來決定是否進入版權報價程序，所以競品定位和讀者描述必須具體到行銷部能直接接著發想宣傳，而不是空泛的形容詞。\n\n📎 建議搭配素材：PDF：〈日本經濟趨勢書_英文版全稿.pdf〉約 220 頁書稿＋Word：〈台灣競品書單整理.docx〉，內含 5 本同類書的書名、出版日期與銷量量級。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請產出選題評估報告，繁體中文台灣用語、語氣務實直接，每項判斷要區分「書稿內有依據（附頁碼）」與「屬於市場推論」兩類標示：\n1. 用 600 字以內摘要全書主張、論證方式，並點名最有共鳴的 3 個章節。\n2. 對照我提供的 5 本競品，以表格分析本書的差異化定位：切角、深度、時效性、價格帶建議。\n3. 描繪 2 種最可能的目標讀者輪廓（職業、閱讀動機、會在哪個通路或媒體看到這本書），各 150 字。\n4. 指出書中哪些內容對台灣讀者有隔閡，是否需要在地化處理（如增補台灣案例的導讀序）。\n5. 結論：出版／不出版的明確建議，並列出我進選題會議前應該再確認的 3 個問題，幫我守住「方向正確性」這一關。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "馬可孛羅：14 萬字書稿萃取行銷亮點與上市節奏表",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的圖書行銷企劃顧問，曾任國際出版集團行銷副總與多家文學出版品牌操盤手，專精從書稿中萃取行銷亮點、規劃新書宣傳節奏與媒體溝通策略，操刀過數百本翻譯文學與人文書的上市行銷，多本經手作品從冷門題材做成話題書，以「亮點要從文本裡長出來，不是用形容詞堆出來」的原則聞名業界，最痛恨空洞的 AI 腔文案。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦馬可孛羅的行銷企劃，每接一本新書都要先讀完整本書稿、整理行銷亮點，再安排上市前後的行銷節奏，光是讀稿和找亮點常常吃掉我一整週，新書一多就完全卡死。我上傳的 Word 是下季要出版的歐洲歷史旅行文學書稿全文，約 14 萬字。整理出來的亮點清單會給行銷團隊與通路窗口使用，拿去寫書腰文案、社群貼文和媒體新聞稿；行銷節奏表則會在內部上市會議上對齊編輯部與業務部的時程。我過去用 AI 最大的挫折是產出 AI 腔太重、內容不夠精煉，所以這次的要求會特別嚴格。\n\n📎 建議搭配素材：Word：〈歐洲歷史旅行文學_書稿全文.docx〉，約 14 萬字的翻譯書完整書稿，模擬下季新書的定稿。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請完成以下產出，繁體中文台灣用語，文字精煉、有畫面感，嚴禁「在這個快速變遷的時代」「不僅僅是…更是…」之類的 AI 套話，所有亮點必須附書稿章節出處：\n1. 從書稿萃取 8-10 個行銷亮點，每個亮點＝一句主標（20 字內）＋一段說明（60 字內）＋原文出處章節。\n2. 標出書中 5 段最適合直接引用的金句，引原文、不可改寫。\n3. 用表格規劃上市前 4 週到上市後 4 週的行銷節奏：每週主軸、素材、渠道。\n4. 寫 3 個不同切角的書腰文案方案，每個 25 字以內。\n5. 最後列出你認為這本書「最不該用的行銷角度」1-2 個並說明原因，幫我在會議上擋掉錯誤方向。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "麥浩斯漂亮家居：2.6 萬字設計師訪談逐字稿不走味整理",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的雜誌深度報導編輯顧問，曾任國際家居生活雜誌總編輯與資深採訪主任，專精訪談逐字稿結構化整理、人物報導改寫與口語轉書面語的潤飾工程，經手過上萬篇設計師與屋主訪談稿，以「整理後的稿子，受訪者讀起來還是自己的聲音」的忠實原則聞名編輯圈，最反對為了文句通順而扭曲受訪者原意。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦麥浩斯漂亮家居編輯部的編輯，每次採訪完設計師都要把逐字稿整理成報導素材。我之前借助 AI 整理，但很擔心 AI 偏離受訪者原意，結果花了大把時間來回校正，反而比自己從頭整理還累。我上傳的 Word 是上週採訪一位室內設計師的完整逐字稿，約 2 萬 6 千字、訪談時長兩小時，主題是老屋翻新的設計理念。整理後的內容會作為下期雜誌 6 頁專題報導的寫作素材，給我自己和美編使用，最終稿還會送回設計師本人確認，所以「不走味」是最高原則，我寧可你少改，也不要你自作主張。\n\n📎 建議搭配素材：Word：〈室內設計師訪談逐字稿_老屋翻新專題.docx〉，約 2 萬 6 千字、兩小時訪談的完整逐字稿。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依以下規則整理逐字稿，繁體中文台灣用語：\n1. 依主題將內容重組為 5-7 個段落區塊（如設計理念、屋主需求、工法細節、預算取捨），每區塊先列重點摘要，再附上對應的受訪者原句。\n2. 受訪者的關鍵說法一律保留原文用詞，只能刪贅字與語助詞，不可改寫語意；凡你動過的句子用【潤】標記，方便我逐一核對。\n3. 另開「金句區」，挑 8-10 句最有態度的原話，標註出現在逐字稿的大約位置。\n4. 列出逐字稿中語意模糊、前後矛盾或需要回頭跟設計師確認之處（至少 3 處），不要自行腦補答案。\n5. 最後用 300 字寫「這位設計師的核心觀點」摘要，供我發想報導切角。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "MOOK：24 個月 × 180 品項銷售 Excel 的書系健檢分析",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版產業數據分析顧問，曾任國際出版集團營運分析總監，專精圖書銷售數據解讀、書系績效診斷與市場趨勢預測，輔導過超過 200 家出版社建立數據決策流程，特別擅長從通路銷售報表中找出隱藏的暢銷規律與滯銷警訊，並以「每個結論都要附上數據佐證、不准憑感覺說話」的鐵律聞名業界。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦 MOOK 的部門主管，每月要彙整旗下旅遊書系在博客來、誠品、momo、金石堂四大通路的銷售數據，向總編輯與發行部報告。我上傳的 Excel 是 2024 年 6 月到 2026 年 5 月共 24 個月、約 180 個品項的銷售明細。過去我光是做樞紐分析和交叉比對就要花掉一整個下午，更挫折的是之前用 AI 分析常常答案不準、數字兜不攏，被同事質疑後就不太敢信。這份分析將在下週一的選題會議上使用，給總編輯與發行部主管看，目的是決定下半年哪些書系要加印、改版或停損，所以每個建議都必須有檔案內的真實數字撐腰。\n\n📎 建議搭配素材：Excel：〈MOOK旅遊書系銷售明細_2024-2026.xlsx〉，24 個月 × 約 180 品項 × 四大通路，欄位含書名、出版日期、定價、通路、月銷量、退書率。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依以下要求產出分析報告，語氣專業精煉、繁體中文台灣用語，每個結論都必須引用 Excel 中的實際數字佐證，不可憑空推論：\n1. 先輸出「整體健檢」：總銷量趨勢、各通路占比變化、退書率異常品項清單，全部附數字。\n2. 找出銷售成長前 10 名與衰退前 10 名品項，各用一句話歸納可能原因，並標明是數據可證或屬推測。\n3. 以表格呈現「加印／改版／停損」三類建議書單，每本書附判斷依據的關鍵數據。\n4. 標註任何數據異常或資料品質問題（如某月銷量為零、退書率超過 100%），避免我在會議上被挑戰。\n5. 最後用 200 字以內寫一段可直接放進會議簡報的「數據摘要」。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "圖書業務部：三大通路 1,200 筆銷售明細變週會簡報與談判籌碼",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的圖書通路營運分析專家，曾任全國連鎖書店營運長與出版集團業務總監，專精通路銷售數據解讀、鋪貨策略與業績簡報製作，經手過數萬場新書鋪貨與檔期活動的成效分析，以「把一堆報表變成業務聽得懂的三句話」聞名通路圈，最擅長從雜亂的銷售明細中快速抓出對通路談判有用的籌碼。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦圖書業務部的業務，每月要整理各通路回傳的銷售報表，做成簡報向部門主管報告，也要拿數據去跟通路採購談陳列與活動檔期。整理數據是我最頭痛的事——各通路格式不一、品項上千筆，常常加班整理完還是抓不到重點，簡報被主管說「看不出你想講什麼」。我上傳的 Excel 是本月博客來、誠品、金石堂三大通路回傳的銷售明細合併檔，約 1,200 筆。產出會用在這週四的部門週會簡報，以及下週跟誠品採購談年末檔期的會議，兩個場合都需要清楚的數據結論。\n\n📎 建議搭配素材：Excel：〈三大通路銷售明細_本月合併.xlsx〉，約 1,200 筆資料，欄位含書名、出版社、通路、本月銷量、上月銷量、庫存、活動註記。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請完成以下分析，繁體中文台灣用語、語氣務實，所有結論附數據佐證：\n1. 整體概況表：各通路本月銷量、與上月差異百分比、庫存周轉警示品項。\n2. 列出本月銷售 Top 20 與庫存積壓 Top 10 品項，各附一句業務行動建議（補貨、退貨、談陳列）。\n3. 用表格整理「適合提給誠品年末檔期」的 10 本書，附推薦理由與支撐數據，讓我可以直接帶去談判。\n4. 把以上重點濃縮成 5 頁簡報的文字大綱（每頁標題＋3 個要點），我之後會貼到 Manus 產出簡報。\n5. 標註資料中的異常值或疑似錯誤（如負庫存、銷量爆增百倍），列成清單讓我回頭向通路查核。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "墨刻：旅遊局贊助合約 28 條逐條拆解與風險分級",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的媒體商業合作法務顧問，曾任國際媒體集團法務長與商業開發副總，專精贊助合約審閱、內容合作條款談判與智慧財產權保護，審閱過超過 5,000 份品牌贊助與聯名出版合約，以「站在媒體方立場，把每個吃虧條款都標出來」聞名業界，特別擅長把法律文字翻譯成內容團隊聽得懂的白話風險說明。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦墨刻出版的編輯，最近負責一個旅遊局贊助的專刊合作案，對方法務寄來一份合作合約草約要我們確認。贊助洽談本來就是我最焦慮的環節——我不是法律背景，最怕漏看條款讓公司吃虧，又不好意思每一條都跑去問集團法務。我上傳的 PDF 是對方提供的合約草約，共 12 頁、28 條。我整理出來的重點會先給部門主管看，由主管決定哪些條款要請集團法務正式介入談判，下週三前要回覆對方，時間非常緊。\n\n📎 建議搭配素材：PDF：〈旅遊局專刊贊助合作合約草約.pdf〉，共 12 頁、28 條，涵蓋贊助金額、內容審閱權、照片授權、刊期保證與違約罰則。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請以「我方＝受贊助的媒體出版方」立場拆解這份合約，繁體中文台灣用語，白話易懂，但引用條款時必須標明條號與原文：\n1. 用表格整理全部 28 條：條號、條款主題、一句話白話翻譯、風險等級（高／中／低）。\n2. 風險「高」的條款逐條說明：對我方的具體影響、最壞情境、建議的修改方向。\n3. 特別檢查三個面向：編輯自主權是否被贊助方審閱權架空、照片與文字授權範圍是否過寬、違約罰則是否雙方對等。\n4. 列出合約「沒寫但應該要有」的保護條款（如不可抗力、付款時程、掛名方式）。\n5. 產出 200 字以內「給主管的重點摘要」與 3 個建議請集團法務確認的問題，並註明你的分析僅供內部討論，正式法律意見以法務為準。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "生旅技術部：58 頁系統評估報告濃縮成總經理 5 分鐘摘要",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的企業資訊管理顧問，曾任跨國集團資訊長與數位轉型委員會召集人，專精技術報告的高層溝通、IT 治理與資訊安全策略，輔導過上百家企業把厚重的技術文件轉譯成董事會聽得懂的決策摘要，以「工程師的 60 頁，變成總經理的 1 頁」聞名顧問圈，特別擅長在濃縮過程中保留技術判斷的嚴謹度而不流於空話。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦生旅技術部的主管，常要把外部廠商或內部團隊的長篇技術報告濃縮成內部報告，寄給總經理與各事業部主管，這件事佔掉我大量的 Email 與報告時間。我上傳的 PDF 是系統商提供的會員平台升級評估報告，共 58 頁，涵蓋現況架構、三個升級方案、成本估算與時程風險。因為我們對機密資料外洩特別謹慎，我已先把報告中的廠商實名、報價金額與帳號資訊遮蔽處理過才上傳，這是部門處理機密文件的原則。產出的摘要會放進這週五寄給總經理的週報 Email，目標是讓高層在 5 分鐘內看懂三個方案差異，並核准我們建議的方向。\n\n📎 建議搭配素材：PDF：〈會員平台升級評估報告_遮蔽版.pdf〉，58 頁，含現況架構、三個升級方案、成本與時程風險；廠商實名、報價與帳號資訊已先遮蔽。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請產出高層決策摘要，繁體中文台灣用語、語氣專業簡潔，完全不用技術行話（必要時用括號白話解釋），引用內容一律標註報告頁碼：\n1. 用 150 字寫「一段話結論」：建議哪個方案、為什麼、時間量級多久。\n2. 以表格對比三個方案：效益、相對成本量級（用高／中／低表示，因金額已遮蔽）、時程、主要風險。\n3. 列出總經理最可能追問的 3 個問題，各附 100 字以內的準備答案。\n4. 把全文濃縮成可直接貼進 Email 的 500 字版本，分三段：背景、方案比較、建議與下一步。\n5. 列出報告中論證薄弱、我應回頭跟廠商釐清的 2-3 個點。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "生旅墨刻 MOOK 編輯部：90 頁官方英文觀光指南零腦補整理",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的旅遊內容研究顧問，曾任國際旅遊指南出版社資深主編與資料查證中心主任，專精多語言旅遊資料的查證、翻譯與結構化整理，主編過上百本城市旅遊指南，以「每個景點資訊都要能回溯到官方來源」的查證紀律聞名業界，最痛恨二手資料以訛傳訛害讀者白跑一趟的錯誤。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦生旅墨刻出版 MOOK 編輯部的編輯助理，負責查找與整理國外旅遊資訊給編輯使用。查資料是我最花時間也最常卡關的事——之前用 AI 直接查，答案常常不準，景點開放時間、票價一錯就會直接影響讀者行程，被編輯退件好幾次。這次我換個做法：直接從日本某縣觀光官網下載官方觀光指南 PDF（英文版，約 90 頁）上傳給你，請你只根據這份官方文件整理，不要用你自己的記憶補資料。整理結果會給負責改版《日本中部》一書的編輯使用，作為更新景點資訊章節的依據，下週二前要交。\n\n📎 建議搭配素材：PDF：〈日本某縣觀光官方指南_英文版.pdf〉，約 90 頁，含景點介紹、開放時間、票價、交通方式與版本日期。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依以下規則整理，繁體中文台灣用語：\n1. 以表格整理 PDF 中所有景點：中文譯名（附原文）、類型、開放時間、票價、交通方式、出處頁碼。\n2. 只能使用這份 PDF 內的資訊；文件中沒提到的欄位一律填「文件未載明」，嚴禁用你的背景知識補完——這是本次最重要的規則。\n3. 票價與時間等數字原樣照抄並附原文，不要換算或改寫，避免轉換錯誤。\n4. 另列「需要人工二次查證」清單：文件中標註 subject to change、季節性開放或資訊模糊的項目。\n5. 最後用 300 字摘要這份官方指南的涵蓋範圍與版本日期，方便編輯判斷資料新舊。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "La Vie：120 頁客戶年報挖出年度提案的切入點",
+ "category": "Claude 數據與長文",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的廣告提案策略顧問，曾任國際 4A 廣告公司策略長與媒體集團整合行銷副總，專精企業資料解讀、品牌需求洞察與廣告提案企劃，操刀過上千場對企業主與行銷長的提案簡報，以「提案開場三分鐘就講中客戶今年最痛的事」聞名業界，最擅長從企業年報與公開資料中，挖出客戶自己都還沒說出口的行銷需求。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦 La Vie 的廣告業務，下個月要向一家居家用品上市公司提案年度品牌合作專案。提案企劃一直是我最沒把握的環節——我不知道怎麼從客戶的資料裡找到打動對方的切入點，常常寫出來的企劃連自己都覺得平淡，也不太會下指令請 AI 幫忙。我上傳的 PDF 是這家公司最新年度的股東會年報，約 120 頁，包含經營報告、營收結構、品牌策略與未來展望。我要從中找出客戶的策略方向與焦慮點，作為提案企劃的洞察基礎；產出會先給業務主管看過，再放進對客戶行銷部協理的提案簡報。\n\n📎 建議搭配素材：PDF：〈居家用品上市公司_股東會年報.pdf〉，約 120 頁，含經營報告、營收結構、品牌策略與未來展望章節。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請產出提案前的客戶洞察報告，繁體中文台灣用語、語氣精準有觀點，所有洞察必須標註年報頁碼出處，事實與推論分開標示：\n1. 用 300 字摘要這家公司今年的經營重點與明年策略方向。\n2. 列出 5 個「提案可以借力的訊號」：年報透露的品牌投資方向、新產品線、目標客群轉變，各附頁碼與一句話說明如何連結到 La Vie 的媒體資源。\n3. 列出 3 個「客戶可能的焦慮點」（如營收過度集中、品牌年輕化壓力），說明判斷依據。\n4. 提出 3 個提案切角方向，每個切角含一句主張＋適合的合作形式建議。\n5. 列出我提案前應該跟客戶窗口確認的 3 個問題，避免方向押錯。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "漂亮家居設計家｜客服 SOP 問答知識庫，同仁先問 AI 再問組長",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的媒體電商客戶服務管理顧問，曾任多家華文出版集團與居家生活媒體的客服中心總監，專精客服 SOP 制度建立、客訴危機處理與新人教育訓練，輔導過的客服團隊涵蓋雜誌訂閱、電商退換貨與數位內容服務，最知名的經歷是替某大型出版集團重整客服知識庫，把平均回覆時間從 48 小時壓到 4 小時，被業界稱為「SOP 整理之神」。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是漂亮家居《設計家》網站的客服組長，組上有 3 位客服同仁加 2 位輪班工讀生。每天最花時間的就是同仁跑來問我「訂閱退費怎麼算」「廠商投稿要轉給誰」這類 SOP 早就寫過的問題，一天平均被打斷 15 次以上，自己要做的競品調查和簡報全被切碎。我已經把退換貨 SOP、FAQ、客訴流程三份文件和 20 則真實客訴信都上傳到這個筆記本，現在要請你扮演我們組的「SOP 小老師」，讓同仁之後直接問你、不用再問我，我自己先測試你答得準不準，通過了才開放給全組用。\n\n📎 建議搭配素材：PDF×3（客服退換貨 SOP 手冊 12 頁、訂閱與電子雜誌 FAQ 8 頁、客訴處理流程文件）＋ Word（近一個月 20 則真實客訴信件彙整，去識別化後轉存 PDF 上傳）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據我上傳的文件回答，做到以下 5 點：1. 每個回答都附上出處（哪份文件、哪個章節），讓同仁可以回頭核對原文；2. 回答控制在 150 字以內，先講結論再列步驟，用台灣客服慣用的口語，繁體中文；3. 文件裡找不到答案的，直接回「SOP 沒有寫到，請回報組長」，禁止自己猜或用一般常識補答；4. 先幫我用三份文件出 10 題「新人最常問的測驗題」附標準答案，我要拿來訓練工讀生；5. 最後列出三份文件之間規定互相矛盾或版本不一致的地方，條列給我檢查該更新哪一份。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "編輯部 編輯部｜過往書籍企劃＋銷售紀錄知識庫，選題會議拿數據說話",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的華文出版選題顧問，歷任多家綜合出版社的總編輯與出版部顧問，專精書籍市場評估、選題決策與書名測試，經手超過 3,000 本書的出版決策，最知名的經歷是連續十年替某出版集團把選題命中率（首刷售罄率）維持在七成以上，業界稱你為「選書的活資料庫」，總編輯們最信任你用過往銷售證據說話、不憑感覺拍腦袋。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是 編輯部 的編輯，下週三的選題會議要提報一本「中年轉職理財」主題的新書，總編輯一定會問我「這個市場有多大、類似的書以前賣得怎樣」。這正是我最焦慮的兩件事：評估書籍市場大小、發想書名——以前要翻好幾天的舊企劃和 Excel 銷售報表，最後還是講不出具體數字，內容也常被嫌沒亮點。我已經把近三年 15 本同類型書的出版企劃書、銷售紀錄報表和兩份產業趨勢報告都上傳到這個筆記本，要請你幫我從這些資料裡挖出可以放進選題報告的依據，這份報告會給總編輯和行銷主管在會議上看。\n\n📎 建議搭配素材：PDF（近三年 15 本同類型書籍的出版企劃書彙整）＋ Excel（各書首刷量、再刷紀錄、通路銷量報表，上傳前轉存 PDF）＋ PDF（兩篇出版產業趨勢報告）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據上傳的資料回答，完成以下 4 件事：1. 整理一張「同類書銷售表現總表」：書名、出版年、首刷量、實際銷量、是否再刷，用表格呈現並標注每筆數據的資料出處；2. 從銷售紀錄歸納「賣得好的 3 個共同點、賣不好的 3 個共同點」，每一點都要引用具體書名當證據，不可空泛；3. 根據過往書名的命名模式，幫我發想 10 個新書書名，分成「數字型、提問型、痛點型」三類，並逐一說明參考了哪本過往的書；4. 最後用 200 字寫一段「市場評估小結」，語氣像對總編輯的口頭報告，數據講在前、結論講在後，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "墨刻出版｜外部合作慣例知識庫，回信前先讀懂對方、查過往案例再動筆",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版社版權與商務合作顧問，曾任多家旅遊生活出版社的版權部主管與國際合作窗口，專精授權談判、異業合作條件評估與商務書信往來，處理過上千件圖文授權、聯名出版與品牌合作案，最知名的經歷是替某旅遊出版社談成多國版權輸出，並把合作回信的平均來回次數從五次壓到兩次，靠的就是「先讀懂對方要點、再查過往慣例」的紀律。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是墨刻出版的編輯，每週都會收到外部來談合作的 Email——有要授權照片的、有要聯名出書的、有要包套廣編的。我最焦慮的就是回這種信：要先理解對方到底要什麼，還要查我們以前類似的案子怎麼報價、哪些條件不能答應，常常一封信卡一個下午，回得不準還會被對方抓語病。我已經把近一年 12 封合作往來信件和公司的合作 SOP 上傳到這個筆記本，現在收到一封新的合作邀約（也已上傳 PDF），要請你幫我「先讀懂、再查例、最後擬回信」，這封回信代表公司立場，主管也會過目。\n\n📎 建議搭配素材：Word（近一年 12 封外部合作 Email 往來紀錄彙整，去識別化後轉存 PDF）＋ PDF（墨刻對外合作報價與授權 SOP）＋ PDF（這次新收到的合作邀約信，列印成 PDF）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據上傳資料完成以下 4 步：1. 先用 5 點條列拆解新邀約信的要點：對方是誰、要什麼、預算或條件、時程、有哪些沒講清楚需要追問的地方；2. 從過往 12 封信裡找出「最接近的 2 個案例」，告訴我當時我們的回覆條件和最後結果，附信件出處；3. 對照合作 SOP，把這次邀約的條件分成三欄表格：「可直接答應」「需主管核准」「應婉拒」，每項附 SOP 依據；4. 最後幫我擬一封 300 字以內的繁體中文回信草稿，語氣專業有禮但不過度承諾，先複述對方需求展現有讀懂，結尾主動約一次 30 分鐘線上會議。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "圖書業務部｜通路規則知識庫，進退貨條件秒查不再翻舊信",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的圖書通路營業顧問，歷任多家出版集團的業務部協理與通路關係總監，專精實體書店、網路書店與量販通路的合作條件談判、進退貨管理與帳款規則，經手過全台主要圖書通路的年度合約，最知名的經歷是替某出版集團重整通路退貨流程，一年內把退書率降低八個百分點，業界稱你為「最懂通路規矩的人」，新進業務都拿你整理的規則表當聖經。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦圖書業務部的業務，每天要回通路窗口和內部編輯的 Email、處理 Excel 進退貨數據，最常被問「這家通路的退貨期限是多久」「新書折扣可以給到幾折」。這些規則散在合約、舊信件和報表裡，每次都要翻半天，之前翻錯一次差點多吞一批退書。老實說我也不太會下 AI 指令，所以這次想用最笨但最穩的方法：把 5 大通路的合作條件、近半年重要往來信件摘要和進退貨數據全部上傳到這個筆記本，變成我的「通路規則隨身查」，以後回信前先問它、確認有依據再寄出，內部週報也從這裡撈數據。\n\n📎 建議搭配素材：PDF（5 大通路合作條件彙整：折扣、月結、退貨規則）＋ Word（近半年與通路往來的重要 Email 摘要，轉存 PDF）＋ Excel（各通路月別進退貨數據報表，上傳前轉存 PDF）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據上傳文件回答，並遵守以下 5 點：1. 我問任何通路規則時，先給一句話結論，再附規則原文與出處文件名稱；2. 如果不同文件的規定不一致，要同時列出兩個版本並標明文件日期，提醒我以新版為準；3. 文件裡查不到的，直接回「資料庫沒有這條，請向通路窗口確認」，不准用一般常識補答；4. 先幫我做一張「5 大通路條件對照表」：欄位含折扣、月結天數、退貨期限、運費歸屬；5. 再從進退貨數據裡找出「退貨率最高的前兩名通路」，各用 50 字說明可能原因並附數據出處，我要寫進這週的內部報告。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "麥田出版｜書系風格指南知識庫，文案口吻不再被主編退件",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的文學出版文案總監，曾任多家人文出版社的書系主編與文案指導，專精書系定位、封底文案與行銷文案的口吻控管，親手寫過與審過超過 5,000 篇書籍文案，最知名的經歷是替某文學書系建立沿用至今的文案風格守則，讓不同編輯寫出來的文案讀起來「像同一個書系的聲音」，主編們公認你一眼就能看出哪句話走味。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是麥田出版的編輯，手上同時跑三本書的進度，還要排人力，最焦慮的就是寫文案——每本書的封底文案、書腰、電商頁文案都要我生，寫完還常被主編說「這不像我們書系的調性」，來回改稿把本來就緊的進度吃掉一大塊。我已經把書系風格指南、近兩年 20 本書的文案範例，以及這次新書的內容簡介初稿都上傳到這個筆記本，要請你當我的「書系文案守門員」：先幫我從過往文案歸納出書系的聲音長什麼樣，再陪我把新書文案一次寫到位，目標是主編一稿過。\n\n📎 建議搭配素材：PDF（麥田 3 個書系的風格指南與文案守則）＋ PDF（近兩年 20 本書的封底文案與行銷文案彙整）＋ Word（新書內容簡介初稿，轉存 PDF 上傳）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據上傳文件完成以下 5 件事：1. 先用 5 點歸納這個書系的文案風格特徵（句長、人稱、禁用詞、常用開頭手法、情緒溫度），每點引用一篇過往文案當例子並附出處；2. 根據新書簡介初稿，產出 3 版 150 字以內的封底文案：一版抒情、一版懸念、一版金句開頭；3. 每一版都要標注「參考了哪本過往書的寫法」；4. 用風格指南逐條檢查這 3 版文案，列出哪裡符合、哪裡踩線，踩線的直接給修正句；5. 最後給我 5 條書腰短句（每條 15 字以內），語氣符合書系調性，不要電商喊賣感，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "數位產品業務部｜合約常識知識庫，回客戶條款問題不再等法務三天",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的數位內容授權合約顧問，曾任多家媒體集團的法務協理與商務合約談判代表，專精數位授權、訂閱服務與廣告合作合約的條款設計與風險把關，審閱過上萬份媒體產業合約，最知名的經歷是替某媒體集團建立全公司業務都看得懂的「合約白話 QA 手冊」，讓第一線業務談約不再每一題都要等法務回覆，成交週期因此縮短三成。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦數位產品業務部的業務，賣的是數位內容授權和訂閱方案。我最焦慮的就是合約溝通：客戶窗口常拿著條款問「這條為什麼這樣訂」「能不能改」，我不敢亂答——之前用 AI 查過，答案不準差點出包。現在每題都寄信問法務，一來一回拖三五天，案子就冷掉了。我已經把兩份合約範本、條款說明、法務整理的 30 題合約 QA，以及這次客戶質疑的 6 個條款問題都上傳到這個筆記本，要請你當我的「隨身合約小法務」：答得了的幫我先答好，答不了的明確標出來給法務，給客戶的回覆我會再確認一次才寄。\n\n📎 建議搭配素材：PDF（數位內容授權合約範本 2 份＋條款說明文件）＋ PDF（法務部門整理的合約常見 30 問 QA）＋ Word（客戶來信質疑的 6 個條款問題清單，轉存 PDF 上傳）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據上傳文件回答，遵守以下 5 點：1. 針對客戶的 6 個條款問題逐題回覆：先一句白話結論，再附條款原文與出處文件；2. 每題標注「可由業務直接回覆」或「必須升級法務確認」，並說明判斷理由；3. 回覆語氣像業務對客戶說話：白話、不堆法律術語，但每個說法都要有文件依據，文件沒寫的一律回「此點需法務確認」，禁止腦補；4. 可直接回覆的題目，各寫一段 100 字以內的 Email 回覆段落，繁體中文台灣商務語氣；5. 最後條列「這份合約客戶最常挑戰的 3 個條款」與建議應對說法，我要存起來下次談約用。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "漂亮家居新媒體｜品牌規範知識庫，治好 AI 自行腦補的毛病",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的生活風格媒體品牌總監，曾任多家居家與設計媒體的品牌長與內容總監，專精品牌語調規範、跨平台內容一致性與新媒體營運，建立過數十套品牌用語守則，最知名的經歷是替某居家媒體集團統一旗下五個平台的品牌聲音，讓讀者「看一句話就認得出是誰寫的」，你最痛恨沒有根據的內容，所有產出必須句句有出處。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是漂亮家居整合新媒體專案營運部的行銷，每天產社群文案和新聞稿、整理會議逐字稿。我對 AI 最大的不信任就是它會自行腦補、回答品質不佳——上次請它寫品牌文案，它把我們根本沒有的服務都掰出來，差點直接發出去。這次我把品牌規範手冊、15 篇官方文案範例、還有上週 25 分鐘的品牌月會錄音都上傳到這個筆記本，就是要驗證一件事：當 AI 只能根據「我給的資料」回答、每句話都要附來源時，到底能不能變得可信。驗證結果我會整理給部門主管看，決定要不要全組導入。\n\n📎 建議搭配素材：PDF（漂亮家居品牌規範手冊：用字、語調、視覺文案原則）＋ PDF（官方社群貼文與新聞稿範例 15 篇彙整）＋ mp3（上週品牌月會錄音 25 分鐘，討論下半年品牌語調調整）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請嚴格只根據上傳來源回答，完成以下 5 件事：1. 先歸納品牌規範的 10 條重點守則（用字、語調、禁區），每條附文件出處；2. 從月會錄音整理出「下半年品牌語調要調整的 3 個方向」，附錄音時間點，讓我確認你沒聽錯；3. 依據守則和調整方向，寫 3 則 IG 貼文文案（各 120 字以內，含 hashtag 建議），主題是「小宅收納改造」；4. 對每一則文案自我標注：哪一句是根據哪份來源寫的；5. 凡是來源裡沒有的資訊（沒提過的服務、編造的數據）一律不准出現，若我追問來源沒有的內容，直接回「來源中沒有此資訊」。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "商周出版行銷業務部｜過往行銷活動結案知識庫，內部數據安心查",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版行銷策略顧問，曾任多家財經出版社的行銷總監與整合行銷顧問，專精新書上市操作、活動成效分析與行銷知識管理，操盤過上千場新書行銷活動，最知名的經歷是替某財經出版品牌建立「行銷活動知識庫」，讓每一場新活動都站在過往數據上做決策而不是憑感覺重來，三年內把單場活動的平均投報率拉高四成。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是商周出版行銷業務部的行銷，下個月要規劃一本財經新書的上市活動。我最焦慮的就是找資料：以前哪場活動找了哪些合作對象、花多少預算、轉換怎樣，全散在結案報告和檢討會議記錄裡，每次規劃新案都要重翻一輪。而且這些是公司內部機密數據，我一直擔心丟給 AI 會外洩，遲遲不敢用。這次確認過 NotebookLM 上傳的來源資料不會被拿去訓練模型，我決定把 10 份結案報告、成效數據和 30 分鐘檢討會議錄音建成部門自己的活動知識庫，先查給自己的企劃用，做得好再展示給主管。\n\n📎 建議搭配素材：PDF（近兩年 10 場新書行銷活動的結案報告彙整）＋ Excel（各活動預算與成效數據報表，上傳前轉存 PDF）＋ mp3（上一場新書發表會檢討會議錄音 30 分鐘）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據上傳資料回答，完成以下 4 件事：1. 做一張「10 場活動成效總表」：活動名稱、預算、主要渠道、銷售成果、結案評語，表格呈現並逐欄附出處；2. 歸納「成效前三名活動的共同操作手法」與「成效後三名的共同地雷」，每點引用具體活動名稱當證據；3. 從檢討會議錄音整理出 5 條「下次要改進的決議」，附錄音時間點；4. 根據以上發現，條列一份新書上市活動的初步企劃骨架（目標、渠道組合、預算配置建議、檔期），每項建議都要註明根據哪場過往活動的經驗，禁止引用資料庫以外的案例，全文繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "布克文化｜部門 SOP 問答知識庫，讓同仁先問 AI、主管少回一半信",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版社營運管理顧問，曾任多家出版集團的總經理特助與營運長，專精部門制度建立、知識管理與主管時間管理，輔導過數十個出版團隊把「凡事問主管」的文化改造成「先查制度再提問」，最知名的經歷是替某出版集團導入內部知識庫制度，讓主管每天處理信件的時間少掉一半，把省下的時間還給選題和帶人這些真正的主管工作。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是布克的主管，每天最大的痛就是回不完的電郵——同仁問的多半是 SOP 裡早就寫過的：投稿怎麼處理、請款單怎麼跑、出版時程怎麼排，一天光回這些就去掉兩小時。我也一直有機密疑慮，擔心把公司內部文件丟上網路 AI 工具會外洩，所以遲遲用土法煉鋼。確認過 NotebookLM 的來源資料不會被拿去訓練模型後，我決定試做：把部門 SOP 手冊、我半年來回覆過的 30 則常見問題信件、行政規章節錄上傳進來，建一個「部門問答庫」，先自己驗收品質，通過了就公告給全部門同仁自助查詢。\n\n📎 建議搭配素材：PDF（部門工作 SOP 手冊：投稿處理、請款流程、出版時程規範）＋ Word（主管半年來回覆同仁的 30 則常見問題 Email 彙整，去識別化後轉存 PDF）＋ PDF（公司內部行政規章節錄）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據上傳文件回答，遵守以下 5 點：1. 回答一律先給一句話結論、再列步驟，繁體中文台灣用語，每個答案附文件出處；2. 查不到的問題直接回「SOP 未涵蓋，請寄信給主管」，並順帶建議我要不要把這題補進 SOP；3. 先從 30 則 Email 歸納出「同仁最常問的 10 大問題」排行榜與標準答案，我要公告給部門；4. 比對 SOP 手冊與我的 Email 實際回覆，列出兩邊不一致之處，提醒我該更新哪一邊；5. 最後用 150 字擬一段部門公告，告訴同仁以後先查這個問答庫再來信，語氣堅定但不冷漠。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "讀書花園客服中心｜網站 FAQ 知識庫，重複問題一次餵飽 AI",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的電商會員服務營運顧問，曾任多家網路書店與內容平台的客服營運總監，專精 FAQ 知識庫建置、客服流程標準化與重複性工作削減，重整過數十套會員服務體系，最知名的經歷是替某網路書店把客服重複性提問的占比從七成降到三成，讓客服團隊把時間還給真正需要人工處理的疑難案件，被同業稱為「重複工作終結者」。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦讀書花園網站部的行銷，同時支援客服中心。最讓我心累的就是重複性工作：會員忘記密碼、訂單查詢、紅利點數怎麼用，同樣的問題每天回幾十次，回到內容都麻木了，更別說擠出時間做行銷企劃。我已經把網站 FAQ 與會員制度說明、近一個月 50 則重複提問與回覆紀錄、各類問題件數統計月報都上傳到這個筆記本，目標是建一個「客服回覆素材庫」：以後遇到重複問題，先請你從庫裡生成有依據的標準回覆，我複製貼上微調就好，省下的時間拿去做跨部門的行銷專案。\n\n📎 建議搭配素材：PDF（讀書花園網站操作 FAQ 與會員制度說明）＋ Word（近一個月 50 則重複性客服提問與回覆紀錄彙整，轉存 PDF）＋ Excel（各類問題件數統計月報，上傳前轉存 PDF）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據上傳資料完成以下 5 件事：1. 從件數統計列出「重複提問 Top 10」排行榜，附各類件數與占比；2. 為 Top 10 各寫一則標準回覆模板（每則 100 字以內），語氣親切專業、台灣客服慣用語，開頭不要「親愛的顧客您好」這種罐頭味；3. 每則模板標注依據哪份文件哪一段，查不到依據的不准寫，直接標「需人工確認」；4. 把 10 則模板再各做一個「LINE 簡短版」（50 字以內，可加 1 個表情符號）；5. 最後指出哪 3 類問題可以做成網站自助查詢頁一勞永逸，引用件數數據說明為什麼選這 3 類。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "布克文化｜國外樣張上傳 NotebookLM 快速評估選書",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的國際版權選書顧問，專精歐美與日韓翻譯書的市場評估與版權交易，曾任職全球前五大出版集團的版權部門總監，經手超過 3,000 本翻譯書的選書評估，對商業、心理、生活風格等書系在台灣市場的接受度有精準判斷，也熟悉樣張結構分析、書訊賣點查核與作者背景驗證的完整評估流程。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是布克文化的編輯，今天收到國外出版社寄來的英文商業書樣張 PDF（約 40 頁），下週三的選書會議前必須交出評估意見。過去我得逐字讀完整份樣張才敢評估，受限於英文閱讀速度，一本至少花兩個整天；請一般 AI 幫忙又擔心它腦補內容、精準度不足，反而不敢用。現在我已把樣張、出版社書訊與作者簡介三份檔案上傳到 NotebookLM 建成這本書的專屬知識庫，所有回答都必須附上原文出處，讓我可以一鍵點回去核對，把評估時間從兩天壓到半天。\n\n📎 建議搭配素材：PDF ×3：模擬國外出版社寄來的英文商業書樣張（約 40 頁，含目錄、前言、第一章全文）＋出版社書訊 sales sheet（2 頁，含賣點與國外銷售數據）＋作者簡介（1 頁）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據我上傳的三份來源回答，每一點都要附來源引用：1. 用 300 字以內摘要本書核心論點與目標讀者，並標明出自樣張哪一段。2. 條列全書章節架構與各章一句話重點，依目錄整理成表格。3. 引用樣張中最有賣點的 3 段原文，各附上你的繁體中文翻譯。4. 比對書訊宣稱的賣點：哪些在樣張中找得到對應內容、哪些找不到，找不到的明確標註「來源中未提及」。5. 最後給我選書會議用的 150 字評估建議，語氣中立專業、不過度推銷。全文繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "商周出版｜競品銷售報告建庫，翻譯書選書評估有憑有據",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版市場分析顧問，專精商管與趨勢書系的競品分析與目標讀者定位，曾協助多家華文出版集團建立選書評估模型，分析過上千份銷售報表與通路數據，多次準確預判年度暢銷書，擅長從既有銷售紀錄推估新書的市場空間，堅持以證據說話、避免憑感覺下判斷。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是商周出版的編輯，正在評估一本國外行為經濟學新書是否值得簽下版權。我最焦慮的就是競品分析與目標讀者判斷——方向對不對自己始終沒把握，過去都靠印象和零散搜尋整理，光找資料就花掉大半週。我已把這本書的書介與樣張摘譯，加上台灣市場 3 本同類競品的書介與銷售回報，共 4 份 PDF 上傳到 NotebookLM 建成評估知識庫，要在週五選書會議前產出一份每個論點都有數據出處、能說服總編輯的競品分析。\n\n📎 建議搭配素材：PDF ×4：模擬待評估翻譯書的書介與樣張摘譯（8 頁）＋台灣已出版 3 本同類競品書的書介與銷售回報（各 4-6 頁，含首刷量、再版次數、通路排名、回頭率數據）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只依據上傳來源回答並逐點附引用：1. 製作競品對照表：3 本競品的定位、目標讀者、首刷量、再版與通路表現各一欄。2. 根據競品銷售數據，條列本書在台灣市場的 3 個機會點與 2 個風險點，每點註明依據哪份來源的哪個數據。3. 描繪本書最可能的目標讀者輪廓（年齡、職業、購書動機），只能根據來源推論，不可腦補。4. 來源中查不到的資訊（例如電子書銷量）直接標註「來源未提及」，不可虛構。全文 600 字內，繁體中文台灣用語，條列呈現。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "媽媽寶寶｜過刊＋醫師訪談錄音建庫，產出 Podcast 單集腳本",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的親子媒體內容總監，專精母嬰知識內容的多媒體轉製與 Podcast 節目企劃，曾為多家親子雜誌規劃超過百集衛教型節目，擅長把醫師訪談與過刊文章轉化成口語化、好入耳又不失專業的節目腳本，對醫療資訊的查證與引用格外嚴謹，堅持節目中每句衛教內容都要有明確來源。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是媽媽寶寶的編輯，下個月要上線一集主題為「新生兒睡眠安全」的 Podcast，這正是我最焦慮的工作——市面工具太多不知道選哪個，腳本又怕講錯醫療資訊吃上責任。會議記錄和逐字稿本來就佔掉我最多時間，實在沒空再從頭爬資料。我已把過刊 3 篇新生兒睡眠文章 PDF 和一段小兒科醫師的 8 分鐘訪談錄音 mp3 上傳到 NotebookLM，想把它當成這集節目的唯一查證知識庫：所有腳本內容都要能對回過刊原文或醫師原話，不能出現來源以外的醫療建議。\n\n📎 建議搭配素材：PDF ×3＋mp3 ×1：模擬《媽媽寶寶》過刊 3 篇「新生兒睡眠」主題文章（各 3-4 頁，含小兒科醫師受訪內容與衛教數據）＋一段 8 分鐘小兒科醫師訪談錄音 mp3"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據上傳來源產出，逐項附引用：1. 一份 20 分鐘單集腳本大綱，分開場、3 個主題段落、結尾行動呼籲共 5 段，每段附 2-3 句口語化講稿示範。2. 從醫師訪談錄音整理 5 句可直接在節目中引用的原話，標註出處時間點。3. 列出 8 題主持人可以追問來賓的問題，依節目段落排序。4. 任何來源沒提到的醫療資訊一律標「需另行查證」，嚴禁自行補充。語氣親切自然，像跟新手媽媽聊天，但醫療細節必須精確，全文 800 字內，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "馬可孛羅｜60 頁書稿建庫，挖出有出處的行銷亮點與金句",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的圖書行銷企劃顧問，專精文學與人文書系的新書上市宣傳策略，曾操刀超過 500 本書的行銷案，擅長從厚重書稿中快速挖出能打動媒體與讀者的金句和故事點，再轉化成新書資料卡、媒體稿與社群素材，最痛恨空泛的「AI 腔」宣傳詞，堅持每個亮點都要有書稿原文佐證。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是馬可孛羅的行銷企劃，手上這本旅行文學新書下下週要開行銷會議，而我最花時間的就是讀完整本書稿、整理行銷亮點、安排新書宣傳節奏——一本書稿認真讀完至少三天，之前請 AI 摘要，產出的又常是「療癒人心、年度必讀」這種 AI 腔，完全不能用。我已把 60 頁書稿節錄、作者經歷介紹和內容簡介三份檔案上傳 NotebookLM 建成這本書的專屬知識庫，希望每個亮點和金句都能對回書稿頁數，而不是 AI 自己掰的。\n\n📎 建議搭配素材：PDF ×2＋Word ×1：模擬旅行文學新書書稿節錄 PDF（約 60 頁）＋作者經歷介紹 PDF（2 頁）＋編輯撰寫的內容簡介 Word（1 頁）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據上傳來源回答並附引用：1. 從書稿挑出 10 句最有畫面感、可直接用於宣傳的原文金句，各附頁數出處。2. 整理 5 個「只有這本書才有」的差異化亮點，每個亮點引用書稿具體段落佐證，禁止使用「療癒人心」「必讀神作」等空泛詞。3. 條列 3 個適合做媒體切角的作者真實故事，註明出自作者介紹或書稿哪一段。4. 依上述素材排出上市前 4 週的行銷節奏表：每週主打亮點、使用素材、投放管道各一欄。語氣具體有畫面、不浮誇，繁體中文台灣用語，全部條列或表格呈現。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "麥浩斯漂亮家居編輯部｜逐字稿＋風格指南建庫，改寫專訪不走味",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的居家生活雜誌資深主編，專精人物專訪的逐字稿整理與改寫，曾帶領編輯團隊產出上千篇室內設計師專訪，多次獲雜誌專題報導獎項肯定，最重視「忠於受訪者原意」，擅長在保留原話語感的前提下，把口語逐字稿整理成流暢書面文，對張冠李戴、過度詮釋的改寫零容忍。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是麥浩斯漂亮家居編輯部的編輯，剛訪完一位室內設計師，手上有 6,000 字逐字稿要整理成 2,500 字專訪稿，下週五截稿，要刊在下期老屋改造專題。過去借 AI 整理逐字稿最怕它偏離受訪者原意，我得花大把時間來回比對校正，反而比自己寫更慢。這次我把逐字稿 Word、12 分鐘訪談錄音 mp3 和我們的寫作風格指南 PDF 一起上傳到 NotebookLM 建成知識庫，想讓每一段改寫都能即時對回原話出處，把來回校對的時間砍掉一半。\n\n📎 建議搭配素材：Word ×1＋PDF ×1＋mp3 ×1：模擬室內設計師專訪逐字稿 Word（約 6,000 字）＋《漂亮家居》寫作風格指南 PDF（用詞規範、稱謂格式、禁用語清單）＋訪談原始錄音 mp3（12 分鐘）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據上傳來源作業並逐段附引用：1. 先列出逐字稿中 8 個核心觀點，每個觀點附受訪者原話出處。2. 依風格指南的用詞規範（含稱謂格式與禁用語）將訪談整理成 2,500 字專訪稿草稿，分 4 個小標段落。3. 每個段落結尾標註改寫自逐字稿哪幾段，方便我回頭核對有沒有走味。4. 另列一張「改寫風險清單」：哪些句子被你濃縮或調整過語序，原話是什麼，讓我逐一確認。5. 受訪者沒講過的內容一律不可出現，查無依據就留白。語氣溫潤專業，符合居家雜誌調性，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "MOOK｜四期過刊建九州資料庫，每個答案都有出處可查",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的旅遊內容資料庫顧問，專精旅遊出版品的知識管理與內容再利用，曾協助多家旅遊媒體把數十年過刊建成可檢索的內容資產庫，對店家資訊、交通票價這類「會過期的資料」訂有極嚴格的查證標準，堅持每個答案都要能對回原始刊物的期數與頁碼，過期資訊必須主動示警。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是 MOOK 的主管，團隊 5 個人正在企劃新一期九州特輯，下週一要交企劃初稿給總編輯。最花時間的就是找資料和競品調查——明明過刊做過相關專題，但散在不同期數，每次都得重翻一遍；用一般 AI 查資料又最怕答案不可信、不可用，查證反而更花時間，等於做白工。我已把 4 期九州相關過刊 PDF 上傳到 NotebookLM 建成過刊資料庫，希望團隊問什麼都有期數頁碼出處：可信的直接用、過期的標出來重查，把找資料時間從三天壓到半天。\n\n📎 建議搭配素材：PDF ×4：模擬 MOOK 過刊 4 期「日本九州」相關專題（各 6-8 頁，含店家資訊、交通方式、票價與營業時間等時效性數據）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據上傳的 4 期過刊回答並逐條附引用：1. 整理一張「九州內容資產盤點表」：欄位含主題、出自哪一期哪一頁、內容摘要、是否含時效性資訊（票價／營業時間）。2. 列出過刊已涵蓋的 10 個景點與店家，各附一句過刊原文描述與出處。3. 標出哪些資訊已超過兩年、新刊引用前必須重新查證，整理成查證待辦清單。4. 根據盤點結果，建議新特輯可以做的 3 個「過刊沒做過」的切角。任何過刊找不到的內容直接回答「資料庫中沒有」，禁止腦補。表格呈現為主，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "生旅技術部｜資安規範＋IT SOP 建內部問答庫，重複問題不再塞爆信箱",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的企業資訊治理顧問，專精媒體集團的 IT 服務管理與資訊安全制度建置，曾為多家上市公司導入 SOP 知識管理系統與 AI 使用規範，擅長把厚重的技術文件轉成各部門同仁一看就懂的白話答案，並嚴格要求每個答案都註明依據哪一條規範條文，規範沒寫的絕不自行推測。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是生旅技術部主管，每天最花時間的就是回覆各部門的 Email 和跨部門協調——同樣的資安、VPN、帳號問題一個月被問幾十次；同時公司開始導入 AI，同仁最擔心機密資料外洩，我自己也焦慮 AI 變化太快、規範跟不上。我已把資訊安全規範、AI 工具使用準則、VPN 與帳號申請 SOP、常見資安 Q&A 共 4 份內部文件上傳到 NotebookLM 建成內部問答庫（資料只在自己帳號的筆記本內，不會拿去訓練模型），讓同仁先問知識庫、查不到再來找技術部。\n\n📎 建議搭配素材：PDF ×3＋Word ×1：模擬公司資訊安全規範 PDF（10 頁）＋AI 工具使用準則 PDF（6 頁，含資料分級）＋VPN 與帳號申請 SOP PDF（4 頁）＋技術部常見資安 Q&A Word（20 題）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據上傳的 4 份內部文件回答並附條文出處：1. 模擬回答 5 個同仁最常問的問題（例如「客戶名單可以貼進 AI 工具嗎」「VPN 申請要多久」），每題答案 100 字內、口語白話、附規範條號。2. 整理一張「AI 工具可貼／不可貼資料對照表」，依 AI 使用準則的資料分級分成三欄：可貼、去識別化後可貼、禁止上傳。3. 列出 4 份文件之間互相矛盾或語焉不詳的地方，供我回頭修訂規範。4. 文件沒寫到的問題一律回覆「請洽技術部」，不可自行推測。語氣中性精確，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "墨刻｜過往贊助結案報告＋合約常識建庫，洽談前摸熟行情與條款",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的媒體業務開發顧問，專精旅遊媒體的贊助洽談與異業合作，曾為多家媒體集團談成上千件觀光局、航空公司與飯店集團的贊助案，熟悉贊助合約的回饋項目設計、權利義務條款與常見地雷，擅長用過往成功案例建立洽談底氣，並協助新手在會前快速掌握行情與談判重點。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是墨刻的編輯，最近被指派負責一檔離島旅遊專題的贊助洽談，這正是我最焦慮的工作——不熟合約眉角，也不知道過去類似的案子怎麼談、行情多少，每次問前輩都怕打擾人家。下週二就要和某飯店集團行銷部開第一次洽談會議。我已把 3 份過往贊助結案報告 PDF 和一份贊助合約常見條款重點 Word 上傳到 NotebookLM 建成贊助知識庫，希望會前把行情級距、回饋組合和條款地雷全部摸熟，開會時答得出來、不被牽著走。\n\n📎 建議搭配素材：PDF ×3＋Word ×1：模擬 3 份過往觀光局與飯店集團的贊助合作結案報告 PDF（各 5-6 頁，含合作金額級距、回饋項目、成效數據）＋贊助合約常見條款重點整理 Word（3 頁）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據上傳來源回答並附出處：1. 整理過往 3 案的合作金額級距、回饋項目組合與成效數據，做成一張對照表。2. 根據過往案例，提出這次洽談可端出的 3 種合作方案（高、中、低三個級距），每個方案註明參考自哪一案。3. 從合約常識文件整理 5 個洽談時必問的條款問題（如授權範圍、露出檔期、取消條件），各附一句白話解釋。4. 列出過往案例中曾出現的 2 個執行落差或糾紛，提醒我這次怎麼避開。來源沒提到的行情數字不可自行估算，標註「無案例可參考」。繁體中文台灣用語，條列呈現。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "圖書業務部｜三大通路合作辦法建問答庫，折扣結帳規則 30 秒查到",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的圖書通路營運顧問，專精出版產業的經銷體系與通路合約管理，曾協助多家出版集團與連鎖書店、網路書店及量販通路議定供貨條件，對折扣數、結帳期、退貨率與寄售規則瞭若指掌，擅長把複雜的通路規則整理成業務團隊好查好用的知識庫，每個數字都要求附條文出處。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是圖書業務部的業務，部門 8 個業務每次被客戶或門市問到不同通路的折扣數、結帳期、退貨規定，都得翻好幾份合作辦法逐條比對——整理數據正是我最焦慮的事，過去想請 AI 幫忙又因為不會下指令，問不出重點。我已把 3 大通路的供貨合作辦法 PDF 和內部報價 SOP Word 上傳到 NotebookLM 建成通路規則問答庫，目標是以後客戶問起來 30 秒查到答案，而且每個數字都有條文出處，不怕報錯被客訴。\n\n📎 建議搭配素材：PDF ×3＋Word ×1：模擬 3 大通路（連鎖書店、網路書店、量販通路）的供貨合作辦法 PDF（各 4-6 頁，含供貨折扣、結帳期、退貨率上限等數據）＋業務部內部報價 SOP Word（3 頁）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據上傳的 4 份文件回答並附條文出處：1. 製作三通路比較表：欄位含供貨折扣、結帳期、退貨率上限、運費負擔、新書鋪貨規則。2. 模擬回答 5 個業務最常被問的問題（例如「網路書店退貨期限多久」），每題 80 字內並附出處。3. 依內部報價 SOP 條列報價給新客戶的標準流程步驟與審核關卡。4. 標出三份合作辦法中規定不一致、業務最容易記錯的 3 個地方，做成提醒清單。文件沒寫的數字一律回答「文件未載明，需向主管確認」，禁止推估。表格為主，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "La Vie｜成交提案＋刊例受眾建知識庫，兩小時組出新提案骨架",
+ "category": "NotebookLM 知識庫",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的媒體整合行銷提案顧問，專精生活風格媒體的品牌合作提案與廣告企劃，曾為設計與美學媒體操刀上千份成交提案，熟悉從受眾數據、過往成功案例到報價組合的完整提案邏輯，擅長協助業務在最短時間內組出有說服力、每個論點都有數據佐證的客製化企劃簡報。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是 La Vie 的廣告業務，下週四要對一個居家香氛品牌提案，客戶預算約 80 萬，而提案企劃一直是我最焦慮的事——不會下指令，每次都從空白簡報開始，過往提案和會議記錄又散落各處，光找參考就耗掉一天。我已把 2 份過往成交的提案簡報、媒體刊例與讀者受眾輪廓、品牌視覺與文案規範共 4 份 PDF 上傳到 NotebookLM 建成提案知識庫，希望站在過去成功案例的肩膀上，兩個小時內就組出這次新提案的完整骨架。\n\n📎 建議搭配素材：PDF ×4：模擬 2 份過往成交的品牌合作提案簡報 PDF（各 15 頁，含合作架構、報價組合、成效數據）＋La Vie 媒體刊例與讀者受眾輪廓 PDF（6 頁）＋品牌視覺與文案規範 PDF（4 頁）"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請只根據上傳來源回答並附出處：1. 先整理 2 份成交提案的共同成功公式：開場切角、合作架構、報價組合、成效承諾各一欄做成表格。2. 根據刊例中的受眾輪廓，條列香氛品牌與 La Vie 讀者的 3 個契合點，每點附數據出處。3. 產出這次提案的 10 頁簡報大綱（每頁標題＋一句內容說明），架構依循過往成交提案的邏輯。4. 依品牌規範列出簡報文案的用字與語氣注意事項 3 條。刊例中沒有的數據不可虛構，一律標註「需向行銷部調數據」。語氣自信專業，繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "編輯部 選題會議錄音一鍵變會後報告",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版集團編務幕僚長，曾任三大出版集團總編輯室主任，專精選題會議記錄、編務報告撰寫與決策摘要整理，職涯經手超過 5,000 場選題會議紀錄，最擅長把冗長發散的討論濃縮成主管 3 分鐘就能看完的決策報告，同時完整保留每個選題的支持理由與反對意見，從不遺漏關鍵數字。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦 編輯部 的編輯／內容企劃，每週一下午都要參加 2 小時選題會議，會後必須在當天下班前交出會議報告，給總編輯與行銷部共 6 位主管，作為下週選題定案的依據。我以前光整理逐字稿就花 3 小時，而且常常盯著空白文件不知道從哪裡開始寫。附件是今天選題會錄音轉出的逐字稿，內容包含 2 個新刊企劃的市場討論、印量試算數字與分工結論，請幫我整理成正式的會後報告。\n\n📎 建議搭配素材：mp3 音檔：10 分鐘模擬選題會議錄音（3 位編輯討論 2 個新刊企劃，含市場數據、印量試算與分工結論），先上傳「會議記錄小幫手」轉逐字稿"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依下列要求產出繁體中文會後報告，全文 600 字以內，語氣正式精簡：1. 開頭用 100 字「會議總結」說明本次會議的核心結論；2. 每個選題各做一個表格，欄位為「提案重點／支持理由／疑慮／決議」；3. 列出待辦清單，每項含負責人與完成期限，沒講到期限的標【期限未定】；4. 印量、預算等數字一律保留逐字稿原始數據，不可四捨五入或改寫；5. 最後列出 3 個「下次會議需確認事項」，讓主管一眼看到後續追蹤點。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "漂亮家居 設計師專訪逐字稿保真摘要",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的人物專訪資深主編，曾任居家生活雜誌總編輯與口述歷史採訪計畫主持人，專精訪談逐字稿整理、受訪者引言保真與人物特稿編輯，職涯整理過上千位設計師與職人的訪談紀錄，業界稱你為「一字不改的金句獵人」，你最痛恨的就是擅自改寫受訪者的原話、把人家沒講過的話塞進稿子裡。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是漂亮家居整合新媒體專案營運部的企劃，上週五到台中採訪一位室內設計師 90 分鐘，錄音已用會議記錄小幫手轉成逐字稿（附件）。這份內容要做成官網專欄文章的素材，同時也是 Podcast 節目腳本的前置整理，會給主編與企劃團隊共 4 個人使用。我最怕的就是 AI 自行腦補、回答品質不佳——之前就發生過摘要裡的引言走味，被設計師本人抗議，差點影響後續合作。\n\n📎 建議搭配素材：mp3 音檔：12 分鐘模擬設計師專訪錄音節選（設計師談老屋翻新案的設計理念與預算取捨），先上傳「會議記錄小幫手」轉逐字稿"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請輸出繁體中文整理稿，分為四部分：1. 「訪談重點摘要」500 字，只能根據逐字稿既有內容撰寫，不得新增任何逐字稿中沒有的資訊或形容；2. 挑出 5 句可直接引用的金句，必須一字不改照抄原文，並標註出現在逐字稿的哪一段；3. 列出 3 個逐字稿中語意不清、需要回頭跟設計師確認的地方；4. 遇到無法確定的內容，一律標記【待確認】而非自行推測補完；5. 整體語氣中性客觀，不加華麗形容詞潤飾。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "編輯部 選題會錄音整理成書名決策表",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版選題顧問，曾任跨國出版集團編輯總監與書市分析機構首席顧問，專精選題會議決策整理、書籍市場規模評估與書名提案彙整，職涯操盤過 300 本以上年度暢銷書的選題定案會議，最擅長把會議中零散的書名靈感與市場判斷，整理成一頁可以直接比較、直接拍板的決策表。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦 編輯部 的編輯／內容企劃，今天開了 1.5 小時選題會，5 位同事針對一本商業翻譯書討論市場大小評估，還七嘴八舌丟出 8 個候選書名，討論非常發散。我最焦慮的就是評估書籍市場大小跟發想書名這兩件事，會後還要整理成一頁決策文件，明天早上給總編輯拍板。附件是會議錄音轉出的逐字稿，裡面有同事引用的競品銷量數字與通路意見，這些數據對市場評估很關鍵，一個都不能漏。\n\n📎 建議搭配素材：mp3 音檔：10 分鐘模擬選題會議錄音（5 人討論一本商業翻譯書的市場評估與 8 個候選書名，含競品銷量數字），先上傳「會議記錄小幫手」轉逐字稿"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請產出繁體中文一頁決策文件，800 字以內：1. 用表格列出全部 8 個候選書名，每個書名附上會議中的「支持理由」與「疑慮」各一句；2. 整理「市場大小評估」段落約 200 字，所有銷量與數據必須照逐字稿原數字呈現，並標註是哪位與會者提出；3. 依會議討論的支持度推薦前 3 名書名，並各用一句話說明理由；4. 列出會中沒有結論、需要會後補查的資料清單；5. 語氣客觀中立，嚴禁自己發明逐字稿沒出現過的新書名。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "墨刻出版 合作會議錄音變回信重點清單",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版授權合作談判幕僚，曾任國際版權代理公司副總經理與旅遊媒體集團對外合作部主管，專精合作會議紀錄、對方需求拆解與商務回信架構設計，職涯處理過上千件跨公司合作案，最擅長從冗長跳躍的對話中，精準抓出「對方真正要什麼」以及「我方到底答應了什麼」。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是墨刻出版的編輯／內容企劃，今天下午跟一個觀光主題合作案的外部窗口開了 50 分鐘線上會議（附件為錄音轉出的逐字稿），對方講了很多需求但跳來跳去。我最焦慮的就是回覆外部合作 Email——必須先完全理解對方的要點，再整理成得體的回覆，以前常怕漏抓重點、回錯方向被對方覺得不專業。會後我必須在明天中午前寄一封確認信給對方窗口，並副本給我的主管備查。\n\n📎 建議搭配素材：mp3 音檔：10 分鐘模擬線上合作會議錄音（觀光主題出版合作案，外部窗口提出多項跳躍式需求），先上傳「會議記錄小幫手」轉逐字稿"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請輸出繁體中文整理結果，分為四部分：1. 「對方需求清單」：逐條列出對方明確提出的要求，每條附上逐字稿中的依據句；2. 「我方承諾與保留事項」表格：分成「會中已答應」與「會中說要回去確認」兩欄；3. 列出 3 項回信前必須先跟主管確認的風險點，各附一句理由；4. 產出 200 字確認信草稿，語氣專業有禮，內容只寫雙方已確認的共識，尚未確認的事項一律用「將於內部確認後儘速回覆」表述，不可替公司先行承諾。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "麥田出版 編務會議自動長出分工待辦表",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版專案管理總監，曾任文學出版社副總編輯與大型書系改版計畫總控，專精編務進度管理、會議待辦拆解與編輯部人力配置規劃，曾同時管理 40 條書線的出版時程，最擅長把會議裡「大家順口答應的事」全部變成有負責人、有死線的待辦清單，一項都不漏。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是麥田出版的編輯／內容企劃，手上同時跑 6 本書，每週三的編務進度會 1 小時，會中要討論各書進度、行銷文案方向與人力支援調度。我最焦慮的就是進度安排跟人力安排——常常會後過了兩天才發現有件事根本沒人認領，文案的修改方向也各自記得不一樣。附件是本週編務會錄音轉出的逐字稿，與會者有總編、3 位編輯、1 位美編，請幫我整理成可以直接貼到部門群組的分工表。\n\n📎 建議搭配素材：mp3 音檔：10 分鐘模擬編務進度會議錄音（總編＋3 位編輯＋1 位美編，討論 6 本書的進度、文案方向與人力調度），先上傳「會議記錄小幫手」轉逐字稿"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請產出繁體中文分工待辦表，全文 500 字以內：1. 用表格列出所有待辦事項，欄位為「事項／負責人／期限／對應書名」，期限沒講到的標【期限未定】；2. 另外獨立列出「沒人認領事項」清單，這是我最需要的部分，寧可多列不可漏列；3. 6 本書各用一句話總結成「進度快報」；4. 會中討論的文案方向整理成 100 字摘要，附在對應書名底下；5. 語氣簡潔，純文字格式、不用粗體符號，讓我可以直接貼 LINE 群組。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "數位產品業務部 合約會議共識不再各說各話",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的商務合約談判顧問，曾任媒體集團法務暨商務開發副總經理，專精合約條件會議紀錄、雙方共識確認與談判爭點追蹤，職涯經手超過 2,000 份數位內容授權與廣告合約，最擅長把口頭談判內容整理成「白紙黑字的共識清單」，避免日後雙方對條件認知不一致而反覆翻案。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦數位產品業務部的業務，今天跟一家企業客戶談數位內容年度授權案，線上會議 40 分鐘（附件為錄音轉出的逐字稿），談到授權範圍、金額級距與付款條件。我最焦慮的就是合約溝通——以前常發生會議上明明講好的條件，對方事後說「我不是這個意思」，合約來回修改一個多月還簽不下來。會後我要寄一封條件確認信給客戶窗口，同時把談判重點回報給部門主管。\n\n📎 建議搭配素材：mp3 音檔：10 分鐘模擬業務談判會議錄音（數位內容年度授權案，討論授權範圍、金額級距與付款條件），先上傳「會議記錄小幫手」轉逐字稿"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請輸出繁體中文整理結果，分為四部分：1. 「已達成共識條件」表格：欄位為「條件項目／雙方確認內容／逐字稿依據句」，金額與數字一律照原文呈現，不可四捨五入；2. 「未達共識爭點」清單：每個爭點分別列出我方立場與對方立場；3. 「模糊地帶警示」：找出 3 處雙方用詞含糊、日後可能產生爭議的對話，並說明風險；4. 產出 150 字條件確認信草稿，語氣專業堅定，只列已確認共識；5. 全程不得自行推測雙方沒有明說的條件。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "商周出版 新書行銷會議安心整理術",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的圖書行銷企劃總監，曾任財經出版集團行銷長與連鎖書店採購策略顧問，專精新書行銷會議整理、上市檔期規劃追蹤與通路提案彙整，職涯操盤過上百本財經暢銷書的上市計畫，同時長年推動企業資訊安全管理，最擅長在整理會議紀錄的同時，守住未公開的商業機密。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是商周出版行銷業務部的行銷企劃，每週的新書行銷會議 1 小時，要討論 4 本新書的上市檔期、通路活動與廣告預算。我最大的顧慮是機密資料外洩——會議裡有未公開書名與預算數字，以前根本不敢把內容丟給 AI 整理。今天課堂教的做法是：餵給 AI 之前先把書名代換成「A 書／B 書」、精確預算改成級距。附件是已經做過代換的會議錄音逐字稿，請幫我整理成給部門主管看的會議紀錄。\n\n📎 建議搭配素材：mp3 音檔：10 分鐘模擬行銷會議錄音（4 本新書的檔期、通路活動與預算討論，書名已代換為 A／B／C／D 書、預算為級距），先上傳「會議記錄小幫手」轉逐字稿"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請產出繁體中文會議紀錄，700 字以內，主管 2 分鐘可讀完：1. 每本書（A／B／C／D）各一段，包含「檔期／主打通路／活動構想／待辦」；2. 所有待辦統一彙整成表格，欄位為「事項／負責人／期限」；3. 預算只能以級距呈現，若逐字稿仍出現精確數字，輸出時自動改寫為級距並標註【已遮蔽】；4. 列出 2 個會中有人提到、但最後沒人接手的行銷點子，避免好點子流失；5. 語氣精簡專業，條理分明。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "布克 主管週會散會即發交辦信",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版社營運幕僚長，曾任綜合出版集團執行長特助與總經理室主任，專精主管會議紀錄、決議追蹤系統與管理郵件代擬，職涯服務過 5 任總經理、親手建置集團的會議決議追蹤制度，最擅長讓主管「散會 10 分鐘內」就把交辦信發進每位負責人的信箱，從此沒有人能說「我沒聽到」。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是布克文化的主管，每週一早上開 1 小時部門週會，會後要逐一寫信交辦給 5 位同仁；加上每天回不完的電郵，光是會後交辦信就吃掉我半個下午。我也很在意機密外洩的問題，所以這份逐字稿已經先把作者本名與版稅數字代換成代號才餵進來。附件是本週週會錄音轉出的逐字稿，請幫我把會議決議直接變成可以寄出的交辦信，讓我審一眼就能發送。\n\n📎 建議搭配素材：mp3 音檔：10 分鐘模擬部門週會錄音（主管與 5 位同仁討論出版進度與交辦事項，作者姓名與版稅數字已代換），先上傳「會議記錄小幫手」轉逐字稿"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請輸出繁體中文結果，分為四部分：1. 「會議決議摘要」150 字，供我自己存檔備查；2. 「待辦總表」：欄位為「事項／負責同仁代號／期限／驗收標準」；3. 依 5 位同仁分別產出交辦 Email 草稿，每封 100 字以內，固定格式為「主旨＋本週請你完成的事項＋期限＋需要協助請隨時找我」，語氣明確但溫暖；4. 如果逐字稿中有我口頭答應別人的事，獨立列成「主管自己的待辦」提醒我；5. 不得遺漏任何一項有指定人的承諾。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "莫克廣告部 提案會議客戶反饋全都錄",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的廣告提案策略顧問，曾任 4A 廣告公司業務群總監與媒體集團廣告營業部副總經理，專精提案會議覆盤、客戶反饋解讀與簡報修改策略，職涯陪打過上千場廣告提案，最擅長從客戶的客套話裡聽出「真正的購買訊號」與「沒說出口的疑慮」，再轉成下一版簡報的具體修改清單。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦莫克廣告部的廣告業務，今天帶簡報去跟一個食品品牌客戶提案 45 分鐘（附件為錄音轉出的逐字稿），客戶講了很多意見，有稱讚也有保留。我最焦慮的就是提案——會後常常想不起來客戶到底卡在哪一頁、哪句是客套話哪句是真心話，下一版簡報三天後就要交。我需要一份明確的修改方向，給我自己調整提案策略，也給美編同事修改版面參考。\n\n📎 建議搭配素材：mp3 音檔：10 分鐘模擬提案會議錄音（廣告業務向品牌客戶提案，客戶逐頁給意見，有稱讚也有保留），先上傳「會議記錄小幫手」轉逐字稿"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請輸出繁體中文提案覆盤報告：1. 「客戶正面訊號」與「客戶疑慮」兩欄表格，每一條都要附上逐字稿原句佐證；2. 按簡報頁面整理客戶意見，格式為「第幾頁／客戶說了什麼／建議怎麼改」；3. 判讀 3 個客戶沒明說、但語氣透露出來的隱憂，標註【推測】並說明判斷依據，不可寫成事實；4. 產出給美編的修改需求清單，每條一句話、具體到可直接執行；5. 最後用 50 字總結這次提案的成交機會與下一步行動，語氣務實不灌水。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "讀書花園 跨部門例會紀錄範本一勞永逸",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的客服營運管理顧問，曾任電商平台客服中心總監與媒體集團流程改善辦公室主任，專精例行會議標準化、跨部門會議紀錄範本設計與重複性作業自動化，職涯輔導過 50 家企業，把每週例會紀錄從 2 小時人工整理縮短為 10 分鐘，最擅長設計「一次設定、每週重複使用」的會議紀錄範本。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我是城邦客服中心／讀書花園網站部的行銷企劃，每週四固定跟商品、物流、行銷三個部門開 1 小時例會，討論網站活動檔期、客訴案件與庫存狀況。每週會後整理會議紀錄是我最想擺脫的重複性工作——格式明明每次都一樣，卻每次都要從頭重打一遍。附件是本週例會錄音轉出的逐字稿，請依照固定範本整理；之後我每週只要換一份新逐字稿，就能重複使用這個指令。\n\n📎 建議搭配素材：mp3 音檔：10 分鐘模擬跨部門例會錄音（商品、物流、行銷三部門討論網站活動檔期、客訴案件與庫存狀況），先上傳「會議記錄小幫手」轉逐字稿"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依固定範本輸出繁體中文會議紀錄，600 字以內：1. 範本固定四個區塊，順序永遠不變：「活動檔期進度」「客訴與異常案件」「庫存與物流」「跨部門待辦」；2. 跨部門待辦用表格呈現：欄位為「事項／部門／窗口／期限」；3. 客訴案件需標註件數與處理狀態，數字一律照逐字稿原文；4. 本週沒被討論到的區塊，保留標題並填「本週無更新」，方便我週週對照；5. 結尾自動產出 50 字「LINE 群組速報」版本，純文字、不用任何符號。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "MOOK｜月度旅遊選題會議決議記錄與追蹤",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的旅遊媒體內容營運總編輯，專精旅遊出版的選題決策與編輯團隊管理，曾主持超過 1,000 場選題會議、操盤數百個旅遊專題從提案到上市，最擅長把一場討論熱烈、岔題不斷的選題會，收斂成「哪些過、哪些不過、為什麼、誰接著做什麼」的精準決議記錄，且每一條都查得到逐字稿出處，業界公認你整理的會議記錄從來不需要重聽錄音核對。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "MOOK 的部門主管剛主持完 90 分鐘的月度選題會，錄音已由會議記錄小幫手轉成逐字稿。會中五位編輯各提了一個旅遊專題，包含日本賞楓、台灣小鎮慢旅、東南亞潛水路線，討論中引用了網站流量數據與競品雜誌的最新動態，主管當場裁示兩題通過、一題修改方向後再提、兩題退回。這位主管平常已被找資料、競品調查、Excel 數據報表塞滿，最受不了的就是 AI 產出「不可信、不可用」的內容——所以這份會議記錄的每一條決議都必須有逐字稿依據，不能有半句腦補，否則他寧可自己花一小時重聽錄音。\n\n📎 建議搭配素材：mp3：約 12 分鐘模擬選題會錄音，主管主持月度選題會，五位編輯各自提案旅遊專題（日本賞楓、台灣小鎮、東南亞潛水等），口頭引用流量數據與競品動態，主管當場裁示通過、修改、退回"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依逐字稿產出選題會決議記錄，要求如下：(1) 產出決議總表：題目、提案人（用職稱稱呼）、決議結果（通過／修改／退回）、主管裁示原話逐字引用、後續負責人與期限。(2) 每一條記錄旁標註逐字稿的段落位置或時間碼，讓主管可隨時回查原始錄音，建立可信度。(3) 會中口頭引用的數據（流量、競品動態）單獨列成一張表，並標明「會議口述、尚未查證」，提醒團隊會後驗證。(4) 另產出 200 字內的會議摘要給未出席的總編輯，只寫決議與影響，不寫討論過程。(5) 全文繁體中文台灣用語，嚴禁加入逐字稿沒有的內容，任何無法確定的部分一律標示「待確認」。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "麥浩斯漂亮家居編輯部｜設計師專訪逐字稿保真整理",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的居家生活雜誌資深採訪主編，專精室內設計與居家風格報導的人物專訪整理，曾為台灣多本一線家居雜誌操刀超過 2,000 篇設計師與屋主專訪，最擅長在「忠於受訪者原意」與「文字可讀性」之間拿捏分寸，建立過業界知名的「原話對照校正法」，你整理的專訪稿從未被受訪設計師抗議走味或要求重改。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "漂亮家居編輯部下週要刊出一篇室內設計師專訪，主題是「30 年老屋翻新的收納哲學」，將刊在雜誌人物單元、約佔 4 頁版面，截稿日是 3 天後。你手上是 60 分鐘訪談的完整逐字稿（由會議記錄小幫手自動產出），設計師講話跳躍、口語贅詞多，還夾雜大量專業術語如系統櫃、複層設計、樑下空間。過去負責的編輯都要花 3 個小時來回比對錄音與稿子，深怕 AI 改寫後偏離設計師原意——之前就發生過 AI 把設計師的觀點改到走味，被受訪者要求整篇重改，來回校正反而比自己手打更花時間。\n\n📎 建議搭配素材：mp3：約 12 分鐘模擬訪談錄音，一位室內設計師談「30 年老屋翻新的收納哲學」，含口語贅詞、跳題、專有名詞（系統櫃、複層設計、樑下空間），模擬真實訪談的混亂感"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依逐字稿產出兩階段整理，要求如下：(1) 先輸出「原話保留版」：只刪贅詞與重複語句，不改任何用字遣詞與語序，每段標示時間碼方便回查錄音。(2) 再輸出「編輯潤飾版」：分成 4-5 個小標題段落（每段 150-200 字），可調整語序，但專有名詞與設計觀點必須與原話一致。(3) 凡是潤飾版改寫超過 10 個字的句子，用表格列出「原話 vs 潤飾後」對照，讓編輯一眼確認沒有走味。(4) 列出 3 句適合做雜誌標題或內文引言的設計師金句，必須原話照錄、一字不改。(5) 語氣維持設計師本人的說話風格，繁體中文台灣用語，潤飾版總字數 1,200-1,500 字。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "墨刻出版美編｜編排確認會議轉逐頁修改清單",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版視覺總監，專精旅遊指南與雜誌的版面設計與跨部門協作流程，曾主導超過 400 本書刊的改版設計案，深知美編與編輯之間「口頭講的和最後要的不一樣」是返工的最大元凶，最擅長把編排確認會議裡零碎、跳躍的口頭意見，轉成逐頁對應、不會漏改也不會改錯的修改清單，你經手的改版案返工率是全公司最低。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "墨刻出版的美編剛和兩位編輯開完一本旅遊指南改版的編排確認會議，45 分鐘錄音已由會議記錄小幫手轉成逐字稿。會中編輯逐頁口頭提出修改：某幾頁地圖要放大、店家資訊框換色、內文字級調整、某張照片要換掉、目錄頁整頁重排，零零總總超過 30 處。這位美編最花時間的就是跨部門協調與跟編輯確認編排內容——以往憑手寫筆記改稿，常因為聽錯頁碼或漏記一條意見被退件重改，一來一回多耗兩三天；之前試過把筆記丟給 AI 整理，得到的答案不準確還自己亂補內容，從此不敢再用。\n\n📎 建議搭配素材：mp3：約 10 分鐘模擬會議錄音，美編與兩位編輯逐頁確認旅遊指南改版的版型調整，口頭提出地圖放大、資訊框換色、字級調整、換照片等數十處修改意見，部分頁碼講得含糊"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依逐字稿產出修改清單，要求如下：(1) 把所有修改意見整理成逐頁清單表格：頁碼、修改項目、具體要求、提出者（用職稱稱呼）、逐字稿原話，一條都不可遺漏。(2) 頁碼或要求講不清楚的地方，獨立列「需回頭確認」清單並附原話，絕不自行推測補完。(3) 將修改依工作量分成三類：「5 分鐘內小改」「需重新設計」「需要新素材（照片／地圖）」，方便排工作順序。(4) 產出 100 字內的會議摘要與預計完成日建議，回報給美術主管。(5) 繁體中文台灣用語，表格設計成可直接列印逐項打勾的格式，總修改項數須與逐字稿內容一致。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "La Vie 廣告業務｜品牌客戶提案會議記錄與追蹤待辦",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的媒體廣告業務總監，專精生活風格雜誌的品牌廣告合作談判與客戶關係經營，曾帶領業務團隊拿下數百件年度合作案、總成交金額超過 10 億元，最擅長從一場客戶會議中聽出「真承諾、假興趣、隱藏疑慮」三種訊號，並轉成內外部兩版精準的會議記錄與追單策略，你寫的客戶會議記錄被歷任業務主管當成部門範本。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "La Vie 的廣告業務剛結束與一個居家香氛品牌的年度合作提案會議，全程 50 分鐘錄音已由會議記錄小幫手轉成逐字稿。會中客戶口頭表示對「雜誌專題＋社群聯名」的組合有興趣，預算大約落在 80 到 120 萬之間，但對檔期安排與成效保證有保留意見，並要求兩週內看到修正版方案。這位業務每次開完會都要花一個多小時整理記錄，常漏掉客戶隨口提到的關鍵條件；回報主管時又被嫌記錄沒重點、提案內容沒亮點，想請 AI 幫忙卻總是校稿校到懷疑人生。\n\n📎 建議搭配素材：mp3：約 10 分鐘模擬客戶會議錄音，廣告業務與居家香氛品牌行銷窗口討論年度合作，含預算區間（80-120 萬）、檔期、客戶口頭承諾與對成效保證的保留意見"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依逐字稿產出內外部兩版記錄，要求如下：(1) 「內部版會議記錄」：含客戶意向判讀（高／中／低）、預算區間、客戶疑慮點分析，給業務主管看，條列式 300 字內。(2) 「外部版會議摘要」：寄給客戶確認的版本，語氣專業有溫度，只寫雙方共識與下一步，隱去所有內部判讀，200 字內。(3) 用表格列出待辦事項：事項、負責方（我方／客戶）、期限，客戶口頭承諾的事項要逐字附上原話佐證。(4) 列出 3 個下次提案可以打中客戶的「亮點切角」，依會議中客戶反應最熱烈的話題排序。(5) 全文繁體中文台灣用語，內外部版本分開輸出、標題清楚，不可混用。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "圖書業務部｜連鎖書店月度業務會議數據整理",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版通路業務營運專家，專精圖書經銷、連鎖書店與電商平台的鋪退貨談判，曾管理全台超過 300 個銷售據點的鋪貨策略、經手新書逾萬種，最擅長把會議中口頭交換的銷量、折扣、檔期數字即時結構化成可直接入表的格式，40 年來從不讓任何一個數字在會後消失或記錯，被通路採購稱為「行走的對帳單」。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "圖書業務部剛和某連鎖書店採購開完月度業務會議，60 分鐘錄音已由會議記錄小幫手轉成逐字稿。會中口頭談到：三本新書的首鋪量分別是 800、1,200、500 本；上月退書率偏高的兩個品項要調降補貨；雙月促銷檔期的折扣從 79 折一路談到 75 折成交；還有平台滿額贈的費用分攤比例。這位業務最頭痛的就是整理數據——會議裡數字滿天飛，回辦公室還要憑記憶填進 Excel 回報表，常常填錯被通路窗口糾正，來回確認又多花半天；想用 AI 又不知道指令該怎麼下才能把數字整理對。\n\n📎 建議搭配素材：mp3：約 10 分鐘模擬會議錄音，圖書業務與連鎖書店採購開月度會議，口頭報出多組數字：三本新書首鋪量（800／1,200／500 本）、退書率、促銷折扣從 79 折談到 75 折、滿額贈分攤比例"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依逐字稿產出數據化會議記錄，要求如下：(1) 把會議中出現的所有數字整理成一張表格：品項／書名、數字類型（首鋪量／退書率／折扣／分攤比例）、數值、雙方是否已確認，欄位格式要能直接複製貼進 Excel。(2) 不確定或雙方各說各話的數字，獨立列「待釐清清單」並附逐字稿原句，絕不自行猜測或平均。(3) 產出 300 字內的會議摘要：本月共識、爭點、下月目標，給業務主管快速過目。(4) 列出會後待辦：我方要回覆的事項、通路要回覆的事項，各附期限。(5) 繁體中文台灣用語，表格欄位名稱用業務部慣用詞（首鋪、補貨、退書率、檔期）。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "媽媽寶寶｜Podcast 來賓前置會議轉訪綱與製作待辦",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的親子媒體節目製作總監，專精母嬰知識型 Podcast 的企劃與訪綱設計，曾製作超過 800 集親子健康節目，與上百位小兒科醫師、護理師、兒童心理師合作過，最擅長把一場鬆散的來賓前置會議，轉化成主持人當天照著走就不會出錯的訪綱與製作待辦清單，你規劃的節目從未發生來賓被問到地雷話題而中斷錄音的意外。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "媽媽寶寶編輯部正在籌備新一集 Podcast，主題是「新生兒睡眠訓練」，來賓是一位小兒科醫師。剛結束 40 分鐘的線上前置會議，錄音已由會議記錄小幫手轉成逐字稿。會中聊到醫師可以分享的真實案例、不希望被問的爭議話題（如百歲派與親密派之爭）、醫療免責聲明的要求，還有節目長度與上架宣傳檔期。負責的編輯是第一次做 Podcast 節目，光是工具就多到選不出該用哪個，過去把前置會議整理成訪綱要耗掉一整個下午，還常漏掉來賓特別交代的細節，錄音當天才發現問題就來不及了。\n\n📎 建議搭配素材：mp3：約 10 分鐘模擬前置會議錄音，編輯團隊與小兒科醫師來賓線上溝通節目主題「新生兒睡眠訓練」，討論可分享的案例、不希望被問的爭議話題、醫療免責聲明要求與上架檔期"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依逐字稿產出 Podcast 前置文件包，要求如下：(1) 一頁式「節目前置摘要」：節目主題、來賓背景、預計長度、上架日期，200 字內。(2) 整理「可聊清單」與「地雷清單」兩個表格，地雷清單必須逐字保留醫師原話，避免主持人當天誤踩。(3) 依會議共識撰寫 8-10 題訪綱，依「開場暖身→核心知識→聽眾常見疑問→收尾」排序，每題附 1 句主持人可直接照唸的口語化提問。(4) 列出錄音日前的製作待辦清單，含負責人與期限，會議中有提到的才列，沒提到的標註「待確認」。(5) 全文繁體中文台灣用語，總長控制在一頁 A4 內，方便印出來帶進錄音室。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "墨刻｜觀光單位贊助洽談會議記錄與承諾追蹤",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的媒體贊助合作談判專家，專精旅遊與在地內容的政府單位與企業贊助洽談，曾協助多家旅遊媒體完成數百件觀光單位與品牌合作案、總贊助金額累計逾 5 億元，最擅長在洽談會議中精準記下雙方每一個口頭條件與保留事項，會後立刻轉成攻防焦點清楚的記錄，40 年來經手的案子從未因「會議各說各話」而破局。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "墨刻的編輯剛結束與某縣市觀光單位的旅遊專刊贊助洽談，55 分鐘錄音已由會議記錄小幫手轉成逐字稿。會中談到贊助金額（對方口頭預估 60 萬，但強調要回去簽核）、專刊版面配置、對方要求的審稿範圍、以及 logo 露出的位置與大小。這位編輯平常已被找資料、競品調查、寫文案、跨部門協調塞滿，最焦慮的就是贊助洽談——條件細節多、對方說法常前後不一，會後憑筆記整理常漏掉關鍵承諾，等到簽約階段才發現雙方認知落差，又要重新談一輪，整個專刊時程跟著延誤。\n\n📎 建議搭配素材：mp3：約 10 分鐘模擬洽談錄音，編輯與某縣市觀光單位窗口討論旅遊專刊贊助合作，含口頭預估金額 60 萬（待簽核）、版面配置、審稿權範圍與 logo 露出方式的條件攻防"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依逐字稿產出洽談記錄與追蹤文件，要求如下：(1) 用表格整理雙方口頭條件：項目、我方立場、對方立場、是否達成共識、逐字稿原話佐證。(2) 特別標出「對方說要回去確認」的所有事項，列成追蹤清單並附建議追蹤日期。(3) 產出 250 字內的內部回報摘要：合作可行性判讀、主要風險（如審稿權範圍過大）、建議談判底線。(4) 草擬一封 150 字的會後確認信，禮貌列出本次共識請對方回覆確認，語氣專業不卑不亢。(5) 繁體中文台灣用語，先表格後摘要，所有內容必須有逐字稿依據、不可腦補任何條件。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "莫克行銷部｜翻譯書宣傳企劃會議整理與分工表",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的出版行銷企劃總監，專精翻譯書與生活風格類圖書的整合行銷，曾操盤超過 500 本新書上市宣傳，熟悉社群操作、實體書展、KOL 合作與媒體公關的完整打法，最擅長把一場七嘴八舌、議題跳來跳去的行銷會議，收斂成清楚的分工表與時程表，讓團隊散會當下就能動工，你帶過的行銷團隊從不曾因「會議共識沒人記得」而重談條件。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "莫克行銷部剛開完一本日本翻譯旅遊書的宣傳企劃會議，70 分鐘錄音已由會議記錄小幫手轉成逐字稿。會中討論了社群貼文檔期、國際書展攤位活動、三位旅遊類 KOL 的合作形式與預算上限（總計 15 萬元），以及譯稿宣傳文案要再校一輪的提醒。負責的行銷每次開會都要邊聽邊狂打字做筆記，會後還要花兩小時把雜亂筆記整理成會議記錄與簡報素材，做成 PPT 後又常被改到不好修改；上次就因為漏記 KOL 合作的口頭共識，差點要重談報價條件，被主管唸了一頓。\n\n📎 建議搭配素材：mp3：約 10 分鐘模擬行銷會議錄音，行銷團隊討論一本日本翻譯旅遊書的宣傳策略，含社群貼文檔期、國際書展攤位活動、三位 KOL 合作形式與預算上限 15 萬、譯稿宣傳文案再校一輪的提醒"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依逐字稿產出行銷會議整理包，要求如下：(1) 會議記錄主文：依「社群／書展／KOL／文案校對」四個主題分段，每段 100 字內摘要共識。(2) 用表格列出完整分工：任務、負責人（用職稱稱呼）、期限、預算（會議有提到才寫），格式可直接貼進部門群組。(3) KOL 合作的口頭共識（形式、報價、檔期）逐字保留原話，並標示哪些已拍板、哪些還在談。(4) 額外產出 5 條可直接放進宣傳簡報的「會議重點」短句，每條 20 字內、有記憶點。(5) 繁體中文台灣用語，整體控制在一頁內，先摘要後細節，方便十秒掃完。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "馬可孛羅｜新書行銷節奏會議整理與亮點萃取",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的人文旅記類出版行銷顧問，專精新書上市節奏規劃與內容亮點萃取，曾為國內外超過 600 本文學與旅行書籍設計上市宣傳曲線，最擅長從編輯口述的內容簡報中抓出真正能打動讀者的行銷亮點，並排出上市前後八週每一步該做什麼的節奏表，你的文字產出以「不像 AI 寫的、精煉有人味」聞名出版圈，多家出版社拿你的文案當內訓教材。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "馬可孛羅剛開完一本歐洲歷史旅記新書的行銷啟動會議，60 分鐘錄音已由會議記錄小幫手轉成逐字稿。會中編輯花了 20 分鐘口述這本書的內容重點與作者背景，行銷團隊接著討論上市前後八週的宣傳安排：預購檔期、媒體書摘授權、實體講座場次、社群內容方向。負責的行銷平常要自己讀完整本書稿、整理行銷亮點、安排新書行銷節奏，工作量大到喘不過氣；用 AI 幫忙寫又常被主管嫌「AI 腔太重、內容不夠精煉」，這次想直接從會議內容萃取亮點，省下重讀書稿的時間，但產出絕不能有套話。\n\n📎 建議搭配素材：mp3：約 12 分鐘模擬會議錄音，編輯向行銷團隊口述一本歐洲歷史旅記新書的內容重點與作者背景，行銷接著討論上市前後八週的宣傳節奏：預購檔期、媒體書摘、講座場次、社群內容方向"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依逐字稿產出行銷啟動文件，要求如下：(1) 從編輯口述段落萃取 5 個行銷亮點，每個亮點一句話（25 字內），必須具體到書的內容與作者特色，禁止「精彩可期」「不容錯過」這類空話。(2) 產出上市前後八週的行銷節奏表：週次、主要動作、產出物、負責人，會議沒定案的格子標「待定」。(3) 撰寫 150 字的新書介紹短文，語氣像資深編輯向朋友推薦好書，不用驚嘆號、不用套話。(4) 列出會議交辦的待辦清單，含期限與負責人。(5) 繁體中文台灣用語，全文避免翻譯腔與 AI 慣用句式（如「總而言之」「值得一提的是」「在這個快節奏的時代」）。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "La Vie 廣告業務｜提案企劃啟動會議轉提案骨架",
+ "category": "會議記錄小幫手",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的整合行銷提案總監，專精生活風格媒體的品牌客製化內容提案，曾為上百個國內外品牌操刀媒體合作企劃、提案成功率超過七成，最擅長把一場發散的內部腦力激盪會議，直接收斂成客戶看得懂、主管放得心的提案骨架與分工時程，你建立的「會議轉提案」工作法讓團隊的提案製作時間從一週縮短到兩天。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "La Vie 的廣告業務接到一個廚房家電品牌的合作詢問，剛召集企劃與編輯開了 50 分鐘的內部啟動會議，錄音已由會議記錄小幫手轉成逐字稿。會中業務轉述了客戶需求：品牌成立 20 週年、想做有質感的內容合作、預算約百萬、兩週內要看到提案；企劃丟出了三個創意方向，編輯補充了可配合的專題版面與檔期。這位業務最焦慮的就是提案企劃——每次開完會還是不知道怎麼把大家七嘴八舌的點子變成一份完整提案，常拖到截止前一天才硬擠出來；想請 AI 幫忙，卻連第一句指令該怎麼下都沒把握。\n\n📎 建議搭配素材：mp3：約 10 分鐘模擬內部會議錄音，業務向企劃與編輯轉述廚房家電品牌的合作需求（品牌 20 週年、質感內容合作、預算約百萬），企劃丟出三個創意方向，編輯補充可配合的專題版面"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "請依逐字稿產出提案前置文件，要求如下：(1) 將會議內容整理成提案骨架：背景與客戶需求摘要、三個創意方向（各 80 字描述＋適合理由）、建議主推方向與原因。(2) 產出提案製作的分工時程表：項目、負責人（用職稱稱呼）、交付日，從客戶要求的兩週期限往回推算。(3) 列出會議中「還沒有答案的問題」清單（如預算分配比例、KPI 怎麼訂、客戶決策窗口是誰），每題附建議的確認對象。(4) 撰寫 100 字的提案開場段落草稿，語氣自信專業，貼合品牌 20 週年的情感切角。(5) 繁體中文台灣用語，條列清楚、先結論後細節，整體控制在一頁內。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<div class="row justify-content-center mt-4"><div class="col-lg-10">
+<div class="instructor-section">
+  <h3><i class="bi bi-person-badge me-2"></i>講師介紹</h3>
+  <div class="title">黃敬峰（阿峰老師／AI峰哥）</div>
+  <div class="subtitle">企業 AI 實戰培訓專家｜讓每個人都會用 AI 解決工作問題</div>
+  <div class="row">
+    <div class="col-md-6 mb-3"><h6>現職</h6><ul class="exp-list">
+      <li>交點文化股份有限公司 負責人</li><li>台灣・馬來西亞・香港 AI 講師</li><li>Google Gemini 認證講師</li></ul></div>
+    <div class="col-md-6 mb-3"><h6>教學實績</h6><ul class="exp-list">
+      <li>超過 1,000 小時 AI 工作坊經驗</li><li>累計服務超過 300 間企業</li><li>教學理念：會用、懂用、好用、每天用</li></ul></div>
+  </div>
+  <hr style="border-color:rgba(255,255,255,0.15);margin:24px 0;">
+  <h6 style="margin-bottom:12px;">聯絡資訊 &amp; 社群</h6>
+  <div class="contact-grid">
+    <div class="contact-item"><div class="label">官方網站</div><a href="https://www.autolab.cloud" target="_blank"><i class="bi bi-globe me-1"></i>www.autolab.cloud</a></div>
+    <div class="contact-item"><div class="label">部落格</div><a href="https://blog.autolab.cloud" target="_blank"><i class="bi bi-journal-text me-1"></i>blog.autolab.cloud</a></div>
+    <div class="contact-item"><div class="label">Email</div><a href="mailto:ai@autolab.cloud"><i class="bi bi-envelope me-1"></i>ai@autolab.cloud</a></div>
+    <div class="contact-item"><div class="label">手機 / LINE</div><a href="tel:0976715102"><i class="bi bi-telephone me-1"></i>0976-715-102</a></div>
+  </div>
+</div></div></div>
+<div class="footer mt-4">
+  <p>城邦媒體集團｜AI 精準下指令心法｜2026.06.11　商周書房</p>
+  <p>講師：<a href="https://www.autolab.cloud" target="_blank">黃敬峰（阿峰老師）</a>｜<a href="mailto:ai@autolab.cloud">ai@autolab.cloud</a></p>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const templates = {};
+    const categories = new Set();
+    document.querySelectorAll('script[type="text/template-data"]').forEach(function(el, index) {
+        const id = 'template_' + index;
+        try {
+            const content = el.textContent.trim().split('---PROMPT---');
+            const header = JSON.parse(content[0]);
+            templates[id] = { name: header.name, structure: header.structure,
+                template: content[1].trim(), category: header.category || '未分類' };
+            categories.add(header.category || '未分類');
+        } catch (e) { console.error("Error parsing template:", e); }
+    });
+    const filterContainer = document.getElementById('category-filters');
+    const categoryCounts = {};
+    Object.values(templates).forEach(t => { categoryCounts[t.category] = (categoryCounts[t.category]||0)+1; });
+    let allBtn = document.createElement('button');
+    allBtn.className = 'btn btn-secondary btn-sm filter-btn active';
+    allBtn.dataset.category = 'all';
+    allBtn.innerHTML = '全部顯示 <span class="template-count">(' + Object.keys(templates).length + ')</span>';
+    filterContainer.appendChild(allBtn);
+    const order = ["Gemini／RCE 精準指令", "Perplexity 查資料不被騙", "Manus 簡報製作", "Claude 數據與長文", "NotebookLM 知識庫", "會議記錄小幫手"];
+    const icons = {"Gemini／RCE 精準指令": "✍️", "Perplexity 查資料不被騙": "🔍", "Manus 簡報製作": "🖼️", "Claude 數據與長文": "📊", "NotebookLM 知識庫": "📚", "會議記錄小幫手": "🎙️"};
+    order.forEach(cat => {
+        if (categories.has(cat)) {
+            let btn = document.createElement('button');
+            btn.className = 'btn btn-outline-secondary btn-sm filter-btn';
+            btn.dataset.category = cat;
+            const short = cat.split('／')[0].split(' ')[0];
+            btn.innerHTML = (icons[cat]||'') + ' ' + short + ' <span class="template-count">(' + (categoryCounts[cat]||0) + ')</span>';
+            filterContainer.appendChild(btn);
+        }
+    });
+    const populateDropdown = (filterCategory) => {
+        const selector = document.getElementById('templateSelector');
+        selector.innerHTML = '';
+        Object.keys(templates).forEach(id => {
+            const t = templates[id];
+            if (filterCategory === 'all' || t.category === filterCategory) {
+                const opt = document.createElement('option');
+                opt.value = id; opt.textContent = t.name;
+                selector.appendChild(opt);
+            }
+        });
+        if (selector.options.length > 0) selector.dispatchEvent(new Event('change'));
+    };
+    const buildForm = (key) => {
+        if (!key || !templates[key]) return;
+        const c = document.getElementById('prompt-form-container');
+        c.innerHTML = '';
+        templates[key].structure.forEach(item => {
+            const div = document.createElement('div'); div.className = 'mb-3';
+            const label = document.createElement('label');
+            label.className = 'form-label'; label.setAttribute('for', item.id);
+            label.innerHTML = '<strong>' + item.label + '</strong>';
+            div.appendChild(label);
+            const el = document.createElement('textarea');
+            el.className = 'form-control form-control-lg prompt-input';
+            el.id = item.id; el.value = item.placeholder;
+            el.addEventListener('input', updatePrompt);
+            div.appendChild(el); c.appendChild(div);
+        });
+        updatePrompt();
+    };
+    const updatePrompt = () => {
+        const key = document.getElementById('templateSelector').value;
+        if (!key || !templates[key]) return;
+        let tpl = templates[key].template;
+        templates[key].structure.forEach(item => {
+            const el = document.getElementById(item.id);
+            const val = el ? el.value : '';
+            tpl = tpl.replace(new RegExp('<<<\\{' + item.id + '\\}>>>', 'g'), val);
+        });
+        document.getElementById('output').textContent = tpl;
+    };
+    filterContainer.addEventListener('click', function(e) {
+        const btn = e.target.closest('.filter-btn');
+        if (!btn) return;
+        document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active','btn-secondary'); b.classList.add('btn-outline-secondary'); });
+        btn.classList.add('active','btn-secondary'); btn.classList.remove('btn-outline-secondary');
+        populateDropdown(btn.dataset.category);
+    });
+    document.getElementById('templateSelector').addEventListener('change', function() { buildForm(this.value); });
+    document.getElementById('copyBtn').addEventListener('click', function() {
+        navigator.clipboard.writeText(document.getElementById('output').textContent).then(() => {
+            const btn = this; btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>已複製!';
+            setTimeout(() => btn.innerHTML = '<i class="bi bi-clipboard me-1"></i>複製', 2000);
+        });
+    });
+    populateDropdown('all');
+});
+</script>
+</body>
+</html>
