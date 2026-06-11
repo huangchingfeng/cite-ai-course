@@ -94,8 +94,8 @@
   <h1>📚 城邦媒體 <span>AI 提示詞產生器</span></h1>
   <div class="hero-motto">「 你是機長，AI 是機組人員 」</div>
   <div class="hero-sub">出版人的 AI 指令庫 — 角色 × 情境 × 期望，挑一個城邦真實情境，一鍵複製</div>
-  <div class="mt-3"><span class="stat-badge">📋 120 個城邦提示詞</span><span class="stat-badge">🛠️ 6 大 AI 工具</span><span class="stat-badge">🛡️ 機密零輸入</span></div>
-  <div class="mt-2" style="font-size:0.78rem;opacity:0.55;">✍️ Gemini 20個 ｜ 🔍 Perplexity 20個 ｜ 🖼️ Manus 20個 ｜ 📊 Claude 20個 ｜ 📚 NotebookLM 20個 ｜ 🎙️ 會議記錄小幫手 20個</div>
+  <div class="mt-3"><span class="stat-badge">📋 127 個城邦提示詞</span><span class="stat-badge">🗂️ 7 大分類（含 RCE 萬用模板）</span><span class="stat-badge">🛡️ 機密零輸入</span></div>
+  <div class="mt-2" style="font-size:0.78rem;opacity:0.55;">🧰 RCE萬用模板 7個 ｜ ✍️ Gemini 20個 ｜ 🔍 Perplexity 20個 ｜ 🖼️ Manus 20個 ｜ 📊 Claude 20個 ｜ 📚 NotebookLM 20個 ｜ 🎙️ 會議記錄小幫手 20個</div>
   <svg class="hero-wave" viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 40C240 10 480 55 720 35C960 15 1200 50 1440 30V60H0V40Z" fill="rgba(13,148,136,0.08)"/><path d="M0 50C300 25 600 55 900 40C1100 30 1300 50 1440 45V60H0V50Z" fill="rgba(245,158,11,0.04)"/></svg>
 </div>
 <div class="row justify-content-center"><div class="col-lg-10">
@@ -107,6 +107,265 @@
   <div class="card"><div class="card-header bg-white p-3"><h5 class="mb-3"><i class="bi bi-funnel me-2"></i>1. 選工具與案例</h5><div id="category-filters" class="mb-3 d-flex flex-wrap gap-2"></div><select id="templateSelector" class="form-select form-select-lg"></select></div><div class="card-body p-4" id="prompt-form-container"></div></div>
   <div class="card mt-4"><div class="card-header bg-white p-3"><h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>2. 複製生成結果</h5></div><div class="card-body p-4"><div id="output" class="output-container">請在上方選擇案例並填寫內容...</div><button id="copyBtn" class="btn btn-primary copy-btn"><i class="bi bi-clipboard me-1"></i>複製</button></div></div>
 </div></div>
+<script type="text/template-data">
+{
+ "name": "內容創作｜萬用模板",
+ "category": "RCE萬用模板",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的〔領域，如出版行銷／文學編輯〕專家。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我要為〔受眾〕創作一篇〔類型：書介／社群貼文／新聞稿〕，主題是〔主題〕，會用在〔通路／場合〕。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "風格〔溫暖／犀利／專業〕、長度〔字數〕；請給我〔幾〕個版本，每個各用一句話說明切角；繁體中文台灣用語。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "競品分析｜萬用模板（附來源）",
+ "category": "RCE萬用模板",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的〔領域〕顧問。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我們要評估〔對象：一本書／一個選題／一個市場〕，背景是〔補充說明〕。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "列出〔數量〕個〔面向：定價／銷量／讀者輪廓〕，每一筆都附上來源，結尾給我 3 點可執行建議；繁體中文、用表格呈現。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "摘要速讀｜萬用模板",
+ "category": "RCE萬用模板",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的〔領域〕編輯。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "這是一份〔文件：書稿／報告／合約〕，我要整理給〔誰〕看，用途是〔用途〕。我會把內容貼上或上傳。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "保留原意、只摘重點不改寫；抓出 5 個賣點與 3 個風險，最後用 3 句話總結；繁體中文。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "Email 回覆｜萬用模板",
+ "category": "RCE萬用模板",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的〔角色〕。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "對方來信談〔主旨〕，我方立場是〔答應／婉拒／想再談什麼〕。我會把來信全文貼上。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "先用條列幫我抓出對方的 3 個重點，再用〔語氣：專業友善〕擬一封 300 字內的中文回覆，結尾署名留空讓我自己填。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "取書名｜課堂示範案例",
+ "category": "RCE萬用模板",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的資深文學編輯，操刀過 300 本暢銷翻譯書。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "一本日系職場小說 9 月上市，定價 380，目標讀者 25–38 歲都會上班族女性，主力通路博客來與誠品新書平台桌。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "給我 5 個書名，每個 14 字內、各附一句書腰；分療癒／懸念／犀利三種調性，最後推薦前 3 名並各附 2 行理由。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "競品分析｜課堂示範案例（附來源）",
+ "category": "RCE萬用模板",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的資深版權經紀人，精通台灣出版市場。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "我們要評估一本 AI 主題的翻譯書值不值得引進。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "分析台灣近三年 5 本同類書：書名、出版社、定價、博客來分類榜名次，每一筆附來源，並推估本書目標讀者輪廓；繁體中文、表格。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
+<script type="text/template-data">
+{
+ "name": "去 AI 腔｜改寫模板",
+ "category": "RCE萬用模板",
+ "structure": [
+  {
+   "type": "textarea",
+   "id": "role",
+   "label": "👤 角色 Role",
+   "placeholder": "你是擁有 40 年經驗的資深文編，最擅長把官腔文字改成有人味的文案。"
+  },
+  {
+   "type": "textarea",
+   "id": "context",
+   "label": "📋 情境 Context",
+   "placeholder": "這是我寫好、或 AI 產出的一段文案／書介（我會貼上），要給〔受眾〕看。"
+  },
+  {
+   "type": "textarea",
+   "id": "expectation",
+   "label": "🎯 期望 Expectation",
+   "placeholder": "用人話、去掉官腔，像跟朋友說話那樣重寫一版；保留原意與重點，不要用「在這個快速變遷的時代」「療癒人心」這類陳腔。"
+  }
+ ]
+}
+---PROMPT---
+請根據以下「角色、情境、期望」三要素，產出專業且可直接使用的內容。
+
+【角色】
+<<<{role}>>>
+
+【情境】
+<<<{context}>>>
+
+【期望】
+<<<{expectation}>>>
+</script>
 <script type="text/template-data">
 {
  "name": "編輯部｜引進書中文書名發想與市場規模評估",
@@ -4596,8 +4855,8 @@ document.addEventListener("DOMContentLoaded", function() {
     allBtn.dataset.category = 'all';
     allBtn.innerHTML = '全部顯示 <span class="template-count">(' + Object.keys(templates).length + ')</span>';
     filterContainer.appendChild(allBtn);
-    const order = ["Gemini／RCE 精準指令", "Perplexity 查資料不被騙", "Manus 簡報製作", "Claude 數據與長文", "NotebookLM 知識庫", "會議記錄小幫手"];
-    const icons = {"Gemini／RCE 精準指令": "✍️", "Perplexity 查資料不被騙": "🔍", "Manus 簡報製作": "🖼️", "Claude 數據與長文": "📊", "NotebookLM 知識庫": "📚", "會議記錄小幫手": "🎙️"};
+    const order = ["RCE萬用模板", "Gemini／RCE 精準指令", "Perplexity 查資料不被騙", "Manus 簡報製作", "Claude 數據與長文", "NotebookLM 知識庫", "會議記錄小幫手"];
+    const icons = {"Gemini／RCE 精準指令": "✍️", "Perplexity 查資料不被騙": "🔍", "Manus 簡報製作": "🖼️", "Claude 數據與長文": "📊", "NotebookLM 知識庫": "📚", "會議記錄小幫手": "🎙️", "RCE萬用模板": "🧰"};
     order.forEach(cat => {
         if (categories.has(cat)) {
             let btn = document.createElement('button');
